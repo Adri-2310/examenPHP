@@ -15,5 +15,7 @@ CREATE TABLE recipes (
     instructions TEXT,
     user_id INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    note TEXT NULL,
+    image_url VARCHAR(255) NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
