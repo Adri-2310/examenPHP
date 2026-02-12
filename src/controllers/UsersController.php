@@ -56,4 +56,47 @@ class UsersController extends Controller
         header('Location: /');
         exit;
     }
+
+    /**
+     * Inscription des utilisateurs
+     */
+    public function register()
+    {
+        // Si le formulaire est envoyé
+        if (!empty($_POST)) {
+            // Vérification basique
+            if (!empty($_POST['email']) && !empty($_POST['password']) && !empty($_POST['nom'])) {
+                
+                // On nettoie les entrées (Sécurité XSS)
+                $email = strip_tags($_POST['email']);
+                $nom = strip_tags($_POST['nom']);
+                $password = $_POST['password'];
+
+                // On vérifie si l'email existe déjà
+                $userModel = new UsersModel();
+                $existingUser = $userModel->findOneByEmail($email);
+
+                if ($existingUser) {
+                    $erreur = "Cet email est déjà utilisé";
+                } else {
+                    // On HASH le mot de passe (Sécurité Partie 06)
+                    // "PASSWORD_ARGON2ID" est le standard actuel le plus fort
+                    $hash = password_hash($password, PASSWORD_ARGON2ID);
+
+                    // On enregistre
+                    $userModel->createUser($email, $hash, $nom);
+
+                    // Redirection
+                    header('Location: /users/login');
+                    exit;
+                }
+            } else {
+                $erreur = "Le formulaire est incomplet";
+            }
+        }
+
+        $this->render('auth/register', [
+            'erreur' => $erreur ?? null
+        ]);
+    }
 }
