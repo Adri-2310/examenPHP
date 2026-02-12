@@ -5,7 +5,7 @@ define('ROOT', dirname(__DIR__));
 // 2. Démarrer la session (OBLIGATOIRE pour Partie 05)
 session_start();
 
-// 3. Autoloader (BONUS Partie 09 & 10)
+// 3. Autoloader (pour charger automatiquement les classes sans faire de require à chaque fois)
 // Cela permet d'utiliser "use App\Controllers\MainController"
 require_once ROOT . '/Autoloader.php'; 
 App\Autoloader::register();
