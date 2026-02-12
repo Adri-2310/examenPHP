@@ -1,11 +1,27 @@
 <?php
 namespace App\Controllers;
 
-class MainController
+use App\Core\Controller;
+use App\Models\RecipesModel;
+
+class MainController extends Controller
 {
     public function index()
     {
-        echo "<h1>Bienvenue sur mon site de recettes !</h1>";
-        echo "<p>Si tu vois ce message, c'est que le MVC fonctionne.</p>";
+        // 1. On instancie le modèle
+        $model = new RecipesModel();
+
+        // 2. On récupère les recettes (avec l'auteur si possible, sinon findAll())
+        // Si tu n'as pas encore créé d'utilisateurs, utilise findAll() simple pour tester
+        // $recettes = $model->findAll(); 
+        
+        // Utilisons la version simple pour commencer si ta table est vide ou sans jointure parfaite
+        $recettes = $model->findAll(); 
+
+        // 3. On envoie à la vue
+        $this->render('main/index', [
+            'recettes' => $recettes,
+            'titre' => 'Accueil - Marmiton Exam'
+        ]);
     }
 }
