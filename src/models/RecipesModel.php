@@ -31,4 +31,12 @@ class RecipesModel extends Model
             ORDER BY created_at DESC
         ")->fetchAll();
     }
+
+    /**
+     * Récupère toutes les recettes d'un utilisateur
+     */
+    public function findAllByUserId(int $userId)
+    {
+        return $this->requete("SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY created_at DESC", [$userId])->fetchAll();
+    }
 }
