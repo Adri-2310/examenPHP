@@ -17,7 +17,7 @@
                 <?php if(isset($_SESSION['user'])): ?>
                     <a class="nav-link text-primary" href="/recipes">👨‍🍳 Mes Recettes</a>
                     <a class="nav-link text-danger" href="/favorites">❤️ Mes Favoris</a>
-                    <a class="nav-link text-success" href="/recipes/api">🌍 Inspiration API</a>
+                    <a class="nav-link text-success" href="/api">🌍 Inspiration API</a>
         
                     <a class="nav-link ms-3" href="/users/logout">Déconnexion</a>
                 <?php else: ?>
