@@ -102,4 +102,76 @@ class RecipesController extends Controller
             'titre' => 'Créer une recette'
         ]);
     }
+
+    /**
+     * Modifier une recette existante
+     */
+    public function edit($id)
+    {
+        // 1. Sécurité : Vérifier qu'on est connecté
+        if (!isset($_SESSION['user'])) {
+            header('Location: /users/login');
+            exit;
+        }
+
+        // 2. Récupérer la recette actuelle
+        $recipesModel = new \App\Models\RecipesModel();
+        $recette = $recipesModel->find($id);
+
+        // 3. Sécurité : Vérifier que la recette existe ET qu'elle appartient bien à l'utilisateur connecté
+        if (!$recette || $recette->user_id !== $_SESSION['user']['id']) {
+            header('Location: /recipes');
+            exit;
+        }
+
+        // 4. Traitement du formulaire de modification
+        if (!empty($_POST)) {
+            if (!empty($_POST['title']) && !empty($_POST['description']) && !empty($_POST['ingredients']) && !empty($_POST['instructions'])) {
+                
+                $title = strip_tags($_POST['title']);
+                $description = strip_tags($_POST['description']);
+                $instructions = strip_tags($_POST['instructions']);
+                
+                // On refait la transformation en JSON pour les ingrédients
+                $ingredientsArray = explode(',', $_POST['ingredients']);
+                $ingredientsArray = array_map('trim', $ingredientsArray);
+                $ingredientsJson = json_encode($ingredientsArray);
+
+                // Mise à jour dans la base de données
+                $sql = "UPDATE recipes SET title = ?, description = ?, ingredients = ?, instructions = ? WHERE id = ?";
+                $db = \App\Core\Db::getInstance();
+                $stmt = $db->prepare($sql);
+                $stmt->execute([
+                    $title, 
+                    $description, 
+                    $ingredientsJson, 
+                    $instructions, 
+                    $id
+                ]);
+
+                // Redirection vers la page de lecture de cette recette
+                header('Location: /recipes/lire/' . $id);
+                exit;
+            } else {
+                $erreur = "Veuillez remplir tous les champs obligatoires.";
+            }
+        }
+
+        // 5. Préparation des ingrédients pour l'affichage dans le formulaire (de JSON vers texte à virgules)
+        $ingredientsList = '';
+        $ingArr = json_decode($recette->ingredients, true);
+        if (is_array($ingArr)) {
+            $ingredientsList = implode(', ', $ingArr);
+        } else {
+            $ingredientsList = $recette->ingredients; // Sécurité si c'était pas du JSON
+        }
+
+        // 6. Affichage de la vue
+        $this->render('recipes/edit', [
+            'recette' => $recette,
+            'ingredientsList' => $ingredientsList,
+            'erreur' => $erreur ?? null,
+            'titre' => 'Modifier : ' . $recette->title
+        ]);
+    }
 }
