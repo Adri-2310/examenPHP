@@ -1,35 +1,52 @@
-use App\Models\FavoritesModel; // <-- N'oublie pas ça !
+<?php
+namespace App\Controllers;
 
-public function api()
+use App\Core\Controller;
+use App\Models\RecipesModel;
+
+class RecipesController extends Controller
+{
+    /**
+     * Afficher MES recettes personnelles
+     */
+    public function index()
     {
-        // Sécurité : Si pas connecté, on vire vers le login !
+        // Sécurité : Être connecté
         if (!isset($_SESSION['user'])) {
             header('Location: /users/login');
             exit;
         }
 
-        $this->render('recipes/api', ['titre' => 'Recherche API']);
+        // Récupérer uniquement mes créations
+        $recipesModel = new RecipesModel();
+        $mesCreations = $recipesModel->findAllByUserId($_SESSION['user']['id']);
+
+        // On envoie à la vue dédiée
+        $this->render('recipes/index', [
+            'mesCreations' => $mesCreations,
+            'titre' => 'Mes Propres Recettes'
+        ]);
     }
 
-public function index()
-{
-    // Vérification de sécurité
-    if (!isset($_SESSION['user'])) {
-        header('Location: /users/login');
+    /**
+     * Supprimer une de MES recettes
+     */
+    public function delete($id)
+    {
+        // Sécurité : Être connecté
+        if (!isset($_SESSION['user'])) {
+            header('Location: /users/login');
+            exit;
+        }
+
+        // On supprime uniquement si l'ID correspond ET que c'est le bon utilisateur
+        $sql = "DELETE FROM recipes WHERE id = ? AND user_id = ?";
+        $db = \App\Core\Db::getInstance();
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$id, $_SESSION['user']['id']]);
+
+        // Redirection vers mes recettes
+        header('Location: /recipes');
         exit;
     }
-
-    // 1. Récupérer mes créations (Table recipes)
-    $recipesModel = new RecipesModel();
-    $mesCreations = $recipesModel->findAllByUserId($_SESSION['user']['id']);
-
-    // 2. Récupérer mes favoris (Table favorites)
-    $favoritesModel = new FavoritesModel();
-    $mesFavoris = $favoritesModel->findAllByUserId($_SESSION['user']['id']);
-
-    // 3. Envoyer les deux listes à la vue
-    $this->render('recipes/index', [
-        'mesCreations' => $mesCreations,
-        'mesFavoris' => $mesFavoris
-    ]);
 }

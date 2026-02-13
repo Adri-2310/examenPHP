@@ -14,12 +14,15 @@
                 <a class="navbar-brand" href="/">🍽️ Marmiton-Exam</a>
                 <div class="navbar-nav">
                     <a class="nav-link" href="/">Accueil</a>
-                    <a class="nav-link" href="/recettes">Les Recettes</a>
-                    <?php if(isset($_SESSION['user'])): ?>
-                        <a class="nav-link" href="/users/logout">Déconnexion</a>
-                    <?php else: ?>
-                        <a class="nav-link" href="/users/login">Connexion</a>
-                    <?php endif; ?>
+                <?php if(isset($_SESSION['user'])): ?>
+                    <a class="nav-link text-primary" href="/recipes">👨‍🍳 Mes Recettes</a>
+                    <a class="nav-link text-danger" href="/favorites">❤️ Mes Favoris</a>
+                    <a class="nav-link text-success" href="/recipes/api">🌍 Inspiration API</a>
+        
+                    <a class="nav-link ms-3" href="/users/logout">Déconnexion</a>
+                <?php else: ?>
+                    <a class="nav-link" href="/users/login">Connexion</a>
+                <?php endif; ?>
                 </div>
             </div>
         </nav>
