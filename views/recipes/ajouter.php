@@ -42,6 +42,7 @@
     <div class="card shadow-sm p-4 mt-2">
         <!-- Formulaire avec support d'upload de fichiers -->
         <form method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             <div class="mb-3">
                 <label for="title" class="form-label">Titre de la recette</label>
                 <input type="text" class="form-control" id="title" name="title" placeholder="Ex: Gratin Dauphinois" required>

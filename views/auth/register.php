@@ -40,6 +40,7 @@
                     <?php endif; ?>
 
                     <form method="post">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <div class="mb-3">
                             <label for="nom" class="form-label">Votre Nom (ou Pseudo)</label>
                             <input type="text" class="form-control" id="nom" name="nom" required>

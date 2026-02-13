@@ -84,6 +84,11 @@ class FavoritesController extends Controller
 
         // ===== TRAITEMENT DE L'AJOUT =====
         if (!empty($_POST)) {
+            // Validation du token CSRF
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                die("Erreur de sécurité : Token CSRF invalide");
+            }
+
             $favModel = new FavoritesModel();
 
             // Vérification de doublons : évite d'ajouter 2 fois la même recette
@@ -121,6 +126,11 @@ class FavoritesController extends Controller
     {
         // Vérification de la connexion (exit silencieux)
         if (!isset($_SESSION['user'])) exit;
+
+        // Validation du token CSRF
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            die("Erreur de sécurité : Token CSRF invalide");
+        }
 
         // Suppression avec double vérification : id ET user_id
         // Cela empêche un utilisateur de supprimer les favoris d'un autre

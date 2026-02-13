@@ -95,6 +95,15 @@ class RecipesController extends Controller
 
         // ===== TRAITEMENT DU FORMULAIRE =====
         if (!empty($_POST)) {
+            // ==========================================
+            // VÉRIFICATION DE LA SÉCURITÉ CSRF
+            // ==========================================
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                // Si le jeton est absent ou faux, on bloque tout !
+                die("Erreur de sécurité : Requête non autorisée (Token CSRF invalide).");
+            }
+            // ==========================================
+
             // Validation des champs obligatoires
             if (!empty($_POST['title']) && !empty($_POST['description']) && !empty($_POST['ingredients']) && !empty($_POST['instructions'])) {
 
@@ -236,6 +245,11 @@ class RecipesController extends Controller
 
         // ===== TRAITEMENT DU FORMULAIRE DE MODIFICATION =====
         if (!empty($_POST)) {
+            // Validation du token CSRF
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                die("Erreur de sécurité : Token CSRF invalide");
+            }
+
             if (!empty($_POST['title']) && !empty($_POST['description']) && !empty($_POST['ingredients']) && !empty($_POST['instructions'])) {
 
                 // 1. Nettoyage des données (protection XSS)
@@ -306,6 +320,14 @@ class RecipesController extends Controller
             header('Location: /users/login');
             exit;
         }
+
+        // ==========================================
+        // VÉRIFICATION CSRF POUR LA SUPPRESSION (POST)
+        // ==========================================
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            die("Erreur de sécurité : Token CSRF invalide");
+        }
+        // ==========================================
 
         // 2. Récupération de la recette pour vérifier la propriété et l'image
         $recipesModel = new \App\Models\RecipesModel();

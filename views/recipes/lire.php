@@ -100,7 +100,10 @@
         <?php if(isset($_SESSION['user']) && $_SESSION['user']['id'] == $recette->user_id): ?>
             <div class="card-footer bg-white text-end p-3 border-top-0">
                 <a href="/recipes/edit/<?= $recette->id ?>" class="btn btn-warning text-dark fw-bold px-4">✏️ Modifier</a>
-                <a href="/recipes/delete/<?= $recette->id ?>" class="btn btn-danger px-4" onclick="return confirm('Es-tu sûr de vouloir supprimer cette recette définitivement ?')">🗑️ Supprimer</a>
+                <form method="POST" action="/recipes/delete/<?= $recette->id ?>" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr ?');">🗑️</button>
+                </form>
             </div>
         <?php endif; ?>
     </div>

@@ -49,8 +49,11 @@
                         
                         <div class="card-footer bg-transparent d-flex justify-content-between">
                             <a href="https://www.themealdb.com/meal/<?= $fav->id_api ?>" target="_blank" class="btn btn-sm btn-info text-white">Voir la recette ↗</a>
-                            
-                            <a href="/favorites/delete/<?= $fav->id ?>" class="btn btn-sm btn-danger" onclick="return confirm('Retirer des favoris ?')">🗑️ Retirer</a>
+
+                            <form method="POST" action="/favorites/delete/<?= $fav->id ?>" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Retirer des favoris ?')">🗑️ Retirer</button>
+                            </form>
                         </div>
                     </div>
                 </div>

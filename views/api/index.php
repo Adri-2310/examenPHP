@@ -82,6 +82,7 @@
                                 <p class="card-text small text-muted flex-grow-1">${meal.strInstructions.substring(0, 100)}...</p>
                                 
                                 <form action="/favorites/add" method="POST" class="mt-auto">
+                                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                     <input type="hidden" name="id_api" value="${meal.idMeal}">
                                     <input type="hidden" name="titre" value="${meal.strMeal}">
                                     <input type="hidden" name="image_url" value="${meal.strMealThumb}">

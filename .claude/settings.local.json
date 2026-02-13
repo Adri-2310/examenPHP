@@ -5,7 +5,8 @@
       "Bash(ls:*)",
       "Bash(wc:*)",
       "Bash(dir:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(php -l:*)"
     ]
   }
 }

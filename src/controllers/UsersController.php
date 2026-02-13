@@ -51,6 +51,11 @@ class UsersController extends Controller
     {
         // ===== TRAITEMENT DU FORMULAIRE DE CONNEXION =====
         if (!empty($_POST)) {
+            // Validation du token CSRF
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                die("Erreur de sécurité : Token CSRF invalide");
+            }
+
             // Validation des champs obligatoires
             if (!empty($_POST['email']) && !empty($_POST['password'])) {
 
@@ -128,6 +133,11 @@ class UsersController extends Controller
     {
         // ===== TRAITEMENT DU FORMULAIRE D'INSCRIPTION =====
         if (!empty($_POST)) {
+            // Validation du token CSRF
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                die("Erreur de sécurité : Token CSRF invalide");
+            }
+
             // Validation des champs obligatoires
             if (!empty($_POST['email']) && !empty($_POST['password']) && !empty($_POST['nom'])) {
 

@@ -59,8 +59,11 @@
                             <a href="/recipes/lire/<?= $recette->id ?>" class="btn btn-sm btn-info text-white">Voir</a>
                             <div>
                                 <a href="/recipes/edit/<?= $recette->id ?>" class="btn btn-sm btn-warning">✏️</a>
-                                
-                                <a href="/recipes/delete/<?= $recette->id ?>" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette recette définitivement ?');">🗑️</a>
+
+                                <form method="POST" action="/recipes/delete/<?= $recette->id ?>" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr ?');">🗑️</button>
+                                </form>
                             </div>
                         </div>
                     </div>
