@@ -1,3 +1,28 @@
+<?php
+/**
+ * Vue : auth/register.php
+ *
+ * Description : Formulaire d'inscription des nouveaux utilisateurs
+ * Permet de créer un nouveau compte avec nom, email et mot de passe.
+ *
+ * Variables attendues :
+ * @var string|null $erreur   Message d'erreur d'inscription (email déjà utilisé, champs incomplets)
+ *
+ * Traitement :
+ * - Soumission vers UsersController::register() (même URL en POST)
+ * - Hashing du mot de passe avec PASSWORD_ARGON2ID
+ * - Vérification d'unicité de l'email
+ * - Création du compte avec rôle ROLE_USER par défaut
+ * - Redirection vers /users/login en cas de succès
+ *
+ * Validation :
+ * - Côté client : Champs required + type="email"
+ * - Côté serveur : UsersController::register()
+ *
+ * @package    Views\Auth
+ * @created    2026
+ */
+?>
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -6,7 +31,8 @@
                     <h3 class="mb-0">Inscription</h3>
                 </div>
                 <div class="card-body">
-                    
+
+                    <!-- Affichage des erreurs d'inscription -->
                     <?php if(isset($erreur)): ?>
                         <div class="alert alert-danger">
                             <?= $erreur ?>

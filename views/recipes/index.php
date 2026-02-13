@@ -1,9 +1,38 @@
+<?php
+/**
+ * Vue : recipes/index.php
+ *
+ * Description : Page de liste des recettes personnelles de l'utilisateur
+ * Affiche toutes les recettes créées par l'utilisateur avec barre de recherche client-side.
+ *
+ * Variables attendues :
+ * @var array $mesCreations   Tableau d'objets recettes (de RecipesModel::findAllByUserId)
+ * @var string $titre          Titre de la page
+ *
+ * Variables de session requises :
+ * @var array $_SESSION['user']   Utilisateur connecté (vérification faite dans le contrôleur)
+ *
+ * Fonctionnalités :
+ * - Affichage en grille (cards Bootstrap)
+ * - Recherche en temps réel (JavaScript côté client)
+ * - Boutons Voir, Modifier, Supprimer pour chaque recette
+ * - Placeholder d'image si aucune image uploadée
+ * - Message si aucune recette créée
+ *
+ * JavaScript inclus :
+ * - Recherche en temps réel dans les titres de recettes (filtre les cards)
+ *
+ * @package    Views\Recipes
+ * @created    2026
+ */
+?>
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>👨‍🍳 Mes Propres Recettes</h1>
         <a href="/recipes/ajouter" class="btn btn-primary">➕ Créer une recette</a>
     </div>
 
+    <!-- Barre de recherche client-side (JavaScript) -->
     <div class="mb-4">
         <input type="text" id="search-perso" class="form-control" placeholder="🔍 Rechercher dans mes recettes (ex: Gâteau)...">
     </div>

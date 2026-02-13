@@ -1,13 +1,42 @@
+<?php
+/**
+ * Vue : main/index.php
+ *
+ * Description : Page d'accueil de l'application
+ * Affiche un message de bienvenue et les favoris de l'utilisateur connecté.
+ *
+ * Variables attendues :
+ * @var array $favoris         Tableau des favoris de l'utilisateur (de FavoritesModel::findAllByUserId)
+ * @var array $randomRecipes   Tableau de 3 recettes aléatoires de l'API TheMealDB
+ * @var string $titre          Titre de la page
+ *
+ * Variables de session utilisées :
+ * @var array|null $_SESSION['user']   Utilisateur connecté (affecte l'affichage)
+ *
+ * Affichage conditionnel :
+ * - Si connecté : Bouton "Chercher une nouvelle recette" + Section favoris
+ * - Si non connecté : Boutons "Se connecter" et "S'inscrire"
+ *
+ * Fonctionnalités :
+ * - Message de bienvenue
+ * - Navigation conditionnelle selon état de connexion
+ * - Affichage des coups de cœur (favoris) si présents
+ * - Affichage de 3 recettes aléatoires de l'API (section suivante dans le code)
+ *
+ * @package    Views\Main
+ * @created    2026
+ */
+?>
 <div class="text-center mb-5">
     <h1>Bienvenue sur Marmiton-Exam 👨‍🍳</h1>
     <p class="lead">Votre assistant culinaire personnel</p>
-    
+
     <?php if(isset($_SESSION['user'])): ?>
-        
+        <!-- Utilisateur connecté : Bouton de recherche -->
         <a href="/recipes/api" class="btn btn-primary btn-lg mt-2">🔍 Chercher une nouvelle recette</a>
-    
+
     <?php else: ?>
-        
+        <!-- Visiteur non connecté : Boutons d'authentification -->
         <div class="mt-4">
             <p class="text-muted">Connectez-vous !</p>
             <a href="/users/login" class="btn btn-outline-primary">Se connecter</a>
@@ -17,6 +46,7 @@
     <?php endif; ?>
 </div>
 
+<!-- Section "Mes Coups de Cœur" (affichée uniquement si connecté ET si favoris présents) -->
 <?php if(isset($_SESSION['user']) && !empty($favoris)): ?>
     <div class="mb-5">
         <h2 class="border-bottom pb-2 mb-4">❤️ Mes Coups de Cœur</h2>

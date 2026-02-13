@@ -1,12 +1,41 @@
+<?php
+/**
+ * Vue : recipes/edit.php
+ *
+ * Description : Formulaire de modification d'une recette existante
+ * Affiche un formulaire pré-rempli avec les données de la recette.
+ *
+ * Variables attendues :
+ * @var object $recette         Objet recette à modifier (de RecipesModel::find)
+ * @var string $ingredientsList Ingrédients au format CSV pour le champ input (préparé dans le contrôleur)
+ * @var string|null $erreur     Message d'erreur de validation (optionnel)
+ * @var string $titre           Titre de la page
+ *
+ * Variables de session requises :
+ * @var array $_SESSION['user']   Utilisateur connecté (vérification faite dans le contrôleur)
+ *
+ * Sécurité :
+ * - Vérification de propriété (user_id) faite dans RecipesController::edit()
+ * - htmlspecialchars() sur toutes les données affichées
+ *
+ * Traitement :
+ * - Soumission vers RecipesController::edit($id) (même URL en POST)
+ * - Redirection vers /recipes/lire/{id} en cas de succès
+ *
+ * @package    Views\Recipes
+ * @created    2026
+ */
+?>
 <div class="container mt-4 mb-5">
     <h1>✏️ Modifier la recette</h1>
     <a href="/recipes/lire/<?= $recette->id ?>" class="btn btn-outline-secondary mb-3">⬅ Annuler</a>
-    
+
     <?php if(isset($erreur)): ?>
         <div class="alert alert-danger"><?= $erreur ?></div>
     <?php endif; ?>
 
     <div class="card shadow-sm p-4 mt-2 border-warning">
+        <!-- Formulaire pré-rempli avec les données existantes -->
         <form method="post">
             <div class="mb-3">
                 <label for="title" class="form-label">Titre de la recette</label>

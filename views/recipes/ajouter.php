@@ -1,18 +1,54 @@
+<?php
+/**
+ * Vue : recipes/ajouter.php
+ *
+ * Description : Formulaire de création d'une nouvelle recette personnelle
+ * Permet à l'utilisateur de saisir titre, photo, description, ingrédients et instructions.
+ *
+ * Variables attendues :
+ * @var string|null $erreur   Message d'erreur à afficher (si validation échoue)
+ * @var string $titre         Titre de la page (défini dans RecipesController::ajouter)
+ *
+ * Variables de session requises :
+ * @var array $_SESSION['user']   Utilisateur connecté (vérification faite dans le contrôleur)
+ *
+ * Fonctionnalités du formulaire :
+ * - Upload d'image (optionnel) : formats acceptés jpg, jpeg, png, webp
+ * - Saisie d'ingrédients avec format CSV (séparés par virgules)
+ * - Tous les champs sont requis sauf l'image
+ * - Attribut enctype="multipart/form-data" obligatoire pour l'upload
+ *
+ * Validation :
+ * - Côté client : Attributs HTML5 required
+ * - Côté serveur : Vérification dans RecipesController::ajouter()
+ *
+ * Traitement :
+ * - Soumission vers RecipesController::ajouter() (même URL en POST)
+ * - Redirection vers /recipes en cas de succès
+ *
+ * @package    Views\Recipes
+ * @created    2026
+ */
+?>
 <div class="container mt-4 mb-5">
     <h1>Ajouter une nouvelle recette 🍳</h1>
     <a href="/recipes" class="btn btn-outline-secondary mb-3">⬅ Retour</a>
-    
+
+    <!-- Affichage des erreurs de validation -->
     <?php if(isset($erreur)): ?>
         <div class="alert alert-danger"><?= $erreur ?></div>
     <?php endif; ?>
 
     <div class="card shadow-sm p-4 mt-2">
+        <!-- Formulaire avec support d'upload de fichiers -->
         <form method="post" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="title" class="form-label">Titre de la recette</label>
                 <input type="text" class="form-control" id="title" name="title" placeholder="Ex: Gratin Dauphinois" required>
             </div>
 
+            <!-- Upload d'image (optionnel) -->
+            <!-- Formats acceptés : jpg, jpeg, png, webp (validés côté serveur) -->
             <div class="mb-3">
                 <label for="image" class="form-label">Photo de la recette (Optionnel)</label>
                 <input type="file" class="form-control" id="image" name="image" accept="image/png, image/jpeg, image/webp">
@@ -23,6 +59,7 @@
                 <textarea class="form-control" id="description" name="description" rows="2" placeholder="Ex: Un plat familial réconfortant..." required></textarea>
             </div>
 
+            <!-- Ingrédients au format CSV (transformés en JSON côté serveur) -->
             <div class="mb-3">
                 <label for="ingredients" class="form-label">Ingrédients (séparés par des virgules)</label>
                 <input type="text" class="form-control" id="ingredients" name="ingredients" placeholder="Ex: Pommes de terre, Crème, Ail, Beurre" required>

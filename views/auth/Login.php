@@ -1,3 +1,27 @@
+<?php
+/**
+ * Vue : auth/login.php
+ *
+ * Description : Formulaire de connexion des utilisateurs
+ * Permet à un utilisateur de se connecter avec email et mot de passe.
+ *
+ * Variables attendues :
+ * @var string|null $erreur   Message d'erreur d'authentification (optionnel)
+ *
+ * Traitement :
+ * - Soumission vers UsersController::login() (même URL en POST)
+ * - Vérification email + password_verify() côté serveur
+ * - Création de $_SESSION['user'] en cas de succès
+ * - Redirection vers / en cas de succès
+ *
+ * Validation :
+ * - Côté client : Champs required + type="email"
+ * - Côté serveur : UsersController::login()
+ *
+ * @package    Views\Auth
+ * @created    2026
+ */
+?>
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -6,7 +30,8 @@
                     <h3 class="mb-0">Connexion</h3>
                 </div>
                 <div class="card-body">
-                    
+
+                    <!-- Affichage des erreurs d'authentification -->
                     <?php if(isset($erreur)): ?>
                         <div class="alert alert-danger">
                             <?= $erreur ?>
