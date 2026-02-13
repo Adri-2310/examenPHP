@@ -17,6 +17,11 @@
             <?php foreach($mesCreations as $recette): ?>
                 <div class="col-md-4 mb-4 recipe-card">
                     <div class="card h-100 shadow-sm border-primary">
+                        <?php if(!empty($recette->image_url)): ?>
+                            <img src="<?= $recette->image_url ?>" class="card-img-top" style="height: 180px; object-fit: cover;" alt="Photo recette">
+                        <?php else: ?>
+                            <img src="https://via.placeholder.com/300x180?text=Miam" class="card-img-top" style="height: 180px; object-fit: cover;">
+                        <?php endif; ?>
                         <div class="card-body">
                             <h5 class="card-title recipe-title"><?= htmlspecialchars($recette->title) ?></h5>
                             <p class="card-text text-muted small"><?= substr(htmlspecialchars($recette->description), 0, 80) ?>...</p>

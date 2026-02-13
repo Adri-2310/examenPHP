@@ -7,10 +7,15 @@
     <?php endif; ?>
 
     <div class="card shadow-sm p-4 mt-2">
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="title" class="form-label">Titre de la recette</label>
                 <input type="text" class="form-control" id="title" name="title" placeholder="Ex: Gratin Dauphinois" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="image" class="form-label">Photo de la recette (Optionnel)</label>
+                <input type="file" class="form-control" id="image" name="image" accept="image/png, image/jpeg, image/webp">
             </div>
 
             <div class="mb-3">

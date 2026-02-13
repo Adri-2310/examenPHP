@@ -29,55 +29,58 @@ class RecipesController extends Controller
     }
 
     /**
-     * Supprimer une de MES recettes
-     */
-    public function delete($id)
-    {
-        // Sécurité : Être connecté
-        if (!isset($_SESSION['user'])) {
-            header('Location: /users/login');
-            exit;
-        }
-
-        // On supprime uniquement si l'ID correspond ET que c'est le bon utilisateur
-        $sql = "DELETE FROM recipes WHERE id = ? AND user_id = ?";
-        $db = \App\Core\Db::getInstance();
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$id, $_SESSION['user']['id']]);
-
-        // Redirection vers mes recettes
-        header('Location: /recipes');
-        exit;
-    }
-
-    /**
      * Ajouter une nouvelle recette
      */
     public function ajouter()
     {
-        // 1. Sécurité : Vérifier qu'on est connecté
         if (!isset($_SESSION['user'])) {
             header('Location: /users/login');
             exit;
         }
 
-        // 2. Traitement du formulaire
         if (!empty($_POST)) {
-            // On vérifie que les champs obligatoires sont remplis
             if (!empty($_POST['title']) && !empty($_POST['description']) && !empty($_POST['ingredients']) && !empty($_POST['instructions'])) {
                 
-                // Nettoyage de sécurité (contre les failles XSS)
                 $title = strip_tags($_POST['title']);
                 $description = strip_tags($_POST['description']);
                 $instructions = strip_tags($_POST['instructions']);
                 
-                // Transformation des ingrédients : "Oeufs, Farine" -> ["Oeufs", "Farine"] (en JSON)
                 $ingredientsArray = explode(',', $_POST['ingredients']);
                 $ingredientsArray = array_map('trim', $ingredientsArray);
                 $ingredientsJson = json_encode($ingredientsArray);
 
-                // 3. Sauvegarde dans la base de données
-                $sql = "INSERT INTO recipes (title, description, ingredients, instructions, user_id) VALUES (?, ?, ?, ?, ?)";
+                // ==========================================
+                // GESTION DE L'UPLOAD DE L'IMAGE (CORRIGÉE)
+                // ==========================================
+                $image_url = null; // Par défaut, pas d'image
+                
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    
+                    $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                    $extensions_autorisees = ['jpg', 'jpeg', 'png', 'webp'];
+                    
+                    if (in_array($extension, $extensions_autorisees)) {
+                        
+                        // 1. Chemin absolu vers le dossier public/uploads
+                        $dossierUpload = dirname(__DIR__, 2) . '/public/uploads/';
+                        
+                        // 2. Création automatique du dossier s'il n'existe pas
+                        if (!is_dir($dossierUpload)) {
+                            mkdir($dossierUpload, 0777, true);
+                        }
+
+                        $nomUnique = uniqid() . '.' . $extension;
+                        $cheminComplet = $dossierUpload . $nomUnique;
+                        
+                        // 3. Déplacement du fichier
+                        if (move_uploaded_file($_FILES['image']['tmp_name'], $cheminComplet)) {
+                            $image_url = '/uploads/' . $nomUnique;
+                        }
+                    }
+                }
+                // ==========================================
+
+                $sql = "INSERT INTO recipes (title, description, ingredients, instructions, user_id, image_url) VALUES (?, ?, ?, ?, ?, ?)";
                 $db = \App\Core\Db::getInstance();
                 $stmt = $db->prepare($sql);
                 $stmt->execute([
@@ -85,10 +88,10 @@ class RecipesController extends Controller
                     $description, 
                     $ingredientsJson, 
                     $instructions, 
-                    $_SESSION['user']['id']
+                    $_SESSION['user']['id'],
+                    $image_url
                 ]);
 
-                // 4. Redirection vers la liste de tes recettes
                 header('Location: /recipes');
                 exit;
             } else {
@@ -96,10 +99,28 @@ class RecipesController extends Controller
             }
         }
 
-        // 5. Affichage de la vue
         $this->render('recipes/ajouter', [
             'erreur' => $erreur ?? null,
             'titre' => 'Créer une recette'
+        ]);
+    }
+
+    /**
+     * Voir une recette en détail (Lecture)
+     */
+    public function lire($id)
+    {
+        $recipesModel = new RecipesModel();
+        $recette = $recipesModel->find($id);
+
+        if (!$recette) {
+            header('Location: /recipes');
+            exit;
+        }
+
+        $this->render('recipes/lire', [
+            'recette' => $recette,
+            'titre' => $recette->title
         ]);
     }
 
@@ -108,23 +129,20 @@ class RecipesController extends Controller
      */
     public function edit($id)
     {
-        // 1. Sécurité : Vérifier qu'on est connecté
         if (!isset($_SESSION['user'])) {
             header('Location: /users/login');
             exit;
         }
 
-        // 2. Récupérer la recette actuelle
-        $recipesModel = new \App\Models\RecipesModel();
+        $recipesModel = new RecipesModel();
         $recette = $recipesModel->find($id);
 
-        // 3. Sécurité : Vérifier que la recette existe ET qu'elle appartient bien à l'utilisateur connecté
+        // On vérifie que la recette appartient bien à l'utilisateur connecté
         if (!$recette || $recette->user_id !== $_SESSION['user']['id']) {
             header('Location: /recipes');
             exit;
         }
 
-        // 4. Traitement du formulaire de modification
         if (!empty($_POST)) {
             if (!empty($_POST['title']) && !empty($_POST['description']) && !empty($_POST['ingredients']) && !empty($_POST['instructions'])) {
                 
@@ -132,46 +150,77 @@ class RecipesController extends Controller
                 $description = strip_tags($_POST['description']);
                 $instructions = strip_tags($_POST['instructions']);
                 
-                // On refait la transformation en JSON pour les ingrédients
                 $ingredientsArray = explode(',', $_POST['ingredients']);
                 $ingredientsArray = array_map('trim', $ingredientsArray);
                 $ingredientsJson = json_encode($ingredientsArray);
 
-                // Mise à jour dans la base de données
                 $sql = "UPDATE recipes SET title = ?, description = ?, ingredients = ?, instructions = ? WHERE id = ?";
                 $db = \App\Core\Db::getInstance();
                 $stmt = $db->prepare($sql);
-                $stmt->execute([
-                    $title, 
-                    $description, 
-                    $ingredientsJson, 
-                    $instructions, 
-                    $id
-                ]);
+                $stmt->execute([$title, $description, $ingredientsJson, $instructions, $id]);
 
-                // Redirection vers la page de lecture de cette recette
                 header('Location: /recipes/lire/' . $id);
                 exit;
-            } else {
-                $erreur = "Veuillez remplir tous les champs obligatoires.";
             }
         }
 
-        // 5. Préparation des ingrédients pour l'affichage dans le formulaire (de JSON vers texte à virgules)
+        // Préparation des ingrédients pour l'affichage
         $ingredientsList = '';
         $ingArr = json_decode($recette->ingredients, true);
         if (is_array($ingArr)) {
             $ingredientsList = implode(', ', $ingArr);
         } else {
-            $ingredientsList = $recette->ingredients; // Sécurité si c'était pas du JSON
+            $ingredientsList = $recette->ingredients;
         }
 
-        // 6. Affichage de la vue
         $this->render('recipes/edit', [
             'recette' => $recette,
             'ingredientsList' => $ingredientsList,
-            'erreur' => $erreur ?? null,
             'titre' => 'Modifier : ' . $recette->title
         ]);
+    }
+
+    /**
+     * Supprimer une de MES recettes
+     */
+    public function delete($id)
+    {
+        // 1. Sécurité : Être connecté
+        if (!isset($_SESSION['user'])) {
+            header('Location: /users/login');
+            exit;
+        }
+
+        // 2. On récupère d'abord la recette pour savoir si elle avait une image
+        $recipesModel = new \App\Models\RecipesModel();
+        $recette = $recipesModel->find($id);
+
+        // 3. On vérifie que la recette existe et appartient bien à l'utilisateur
+        if ($recette && $recette->user_id === $_SESSION['user']['id']) {
+            
+            // ==========================================
+            // DESTRUCTION DE L'IMAGE PHYSIQUE
+            // ==========================================
+            if (!empty($recette->image_url)) {
+                // On recrée le chemin exact vers le fichier sur l'ordinateur
+                $cheminFichier = dirname(__DIR__, 2) . '/public' . $recette->image_url;
+                
+                // Si le fichier existe vraiment, on l'efface avec unlink()
+                if (file_exists($cheminFichier)) {
+                    unlink($cheminFichier);
+                }
+            }
+            // ==========================================
+
+            // 4. On supprime maintenant la ligne dans la base de données
+            $sql = "DELETE FROM recipes WHERE id = ?";
+            $db = \App\Core\Db::getInstance();
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$id]);
+        }
+
+        // 5. Redirection vers la liste
+        header('Location: /recipes');
+        exit;
     }
 }
