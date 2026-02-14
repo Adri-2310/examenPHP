@@ -32,23 +32,75 @@ class UsersController extends Controller
     /**
      * Affiche le formulaire de connexion et traite l'authentification
      *
-     * Cette méthode gère le processus complet d'authentification :
-     * 1. Affichage du formulaire de connexion
-     * 2. Vérification des identifiants
-     * 3. Création de la session utilisateur
+     * Cette méthode gère le processus complet d'authentification avec protection anti-brute force :
+     * 1. Vérification du rate limiting (5 tentatives échouées = blocage 15 min)
+     * 2. Affichage du formulaire de connexion
+     * 3. Vérification des identifiants
+     * 4. Création de la session utilisateur
      *
      * Processus de vérification :
      * - Recherche de l'utilisateur par email
      * - Vérification du mot de passe avec password_verify()
      * - Création de la variable de session $_SESSION['user']
+     * - Enregistrement des tentatives échouées par IP
+     * - Avertissement si tentatives > 1 et < limite
+     *
+     * Rate Limiting :
+     * - Maximum 5 tentatives échouées par IP
+     * - Blocage de 15 minutes après dépassement
+     * - Nettoyage automatique des tentatives > 15 minutes
+     * - Affichage du temps restant avant déblocage
      *
      * @return void Affiche la vue auth/login.php ou redirige vers /
      *
      * @security Utilise password_verify() pour comparer le hash
      * @security Message d'erreur générique pour éviter l'énumération d'emails
+     * @security Rate limiting par IP pour prévenir les attaques par force brute
+     * @security Avertissements progressifs du nombre de tentatives restantes
      */
     public function login()
     {
+        // ===== RATE LIMITING =====
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $maxAttempts = 5;
+        $lockoutTime = 15 * 60; // 15 minutes en secondes
+
+        // Initialiser le compteur si nécessaire
+        if (!isset($_SESSION['login_attempts'])) {
+            $_SESSION['login_attempts'] = [];
+        }
+
+        // Nettoyer les anciennes tentatives (plus de 15 minutes)
+        foreach ($_SESSION['login_attempts'] as $attemptIp => $data) {
+            if (time() - $data['time'] > $lockoutTime) {
+                unset($_SESSION['login_attempts'][$attemptIp]);
+            }
+        }
+
+        // Vérifier si l'IP est bloquée
+        if (isset($_SESSION['login_attempts'][$ip])) {
+            $attempts = $_SESSION['login_attempts'][$ip]['count'];
+            $firstAttempt = $_SESSION['login_attempts'][$ip]['time'];
+
+            if ($attempts >= $maxAttempts && (time() - $firstAttempt) < $lockoutTime) {
+                $remainingTime = ceil(($lockoutTime - (time() - $firstAttempt)) / 60);
+                $erreur = "Trop de tentatives de connexion. Réessayez dans {$remainingTime} minute(s).";
+
+                $this->render('auth/login', [
+                    'erreur' => $erreur,
+                    'titre' => 'Connexion'
+                ]);
+                return;
+            }
+            
+            // Avertissement si plusieurs tentatives échouées mais pas encore bloqué
+            if ($attempts > 0 && $attempts < $maxAttempts && (time() - $firstAttempt) < $lockoutTime) {
+                $remainingAttempts = $maxAttempts - $attempts;
+                $avertissement = "⚠️ Attention : {$remainingAttempts} tentative(s) restante(s) avant blocage du compte";
+            }
+        }
+        // ===== FIN RATE LIMITING =====
+
         // ===== TRAITEMENT DU FORMULAIRE DE CONNEXION =====
         if (!empty($_POST)) {
             // Validation du token CSRF
@@ -86,11 +138,26 @@ class UsersController extends Controller
                             'message' => 'Bienvenue ' . $user->nom . ' ! Connexion réussie.'
                         ];
 
+                        // Login réussi : réinitialiser les tentatives
+                        unset($_SESSION['login_attempts'][$ip]);
+
                         // 5. Redirection vers la page d'accueil
                         header('Location: /');
                         exit;
                     } else {
-                        // Identifiants incorrects (message générique pour la sécurité)
+                        // Mot de passe incorrect
+
+                        // ===== ENREGISTRER TENTATIVE ÉCHOUÉE =====
+                        if (!isset($_SESSION['login_attempts'][$ip])) {
+                            $_SESSION['login_attempts'][$ip] = [
+                                'count' => 1,
+                                'time' => time()
+                            ];
+                        } else {
+                            $_SESSION['login_attempts'][$ip]['count']++;
+                        }
+                        // ===== FIN =====
+
                         $erreur = "Identifiants incorrects";
                     }
                 }
@@ -99,7 +166,9 @@ class UsersController extends Controller
 
         // Affichage du formulaire de connexion
         $this->render('auth/login', [
-            'erreur' => $erreur ?? null
+            'erreur' => $erreur ?? null,
+            'avertissement' => $avertissement ?? null,
+            'titre' => 'Connexion'
         ]);
     }
 
@@ -152,6 +221,7 @@ class UsersController extends Controller
      */
     public function register()
     {
+        
         // ===== TRAITEMENT DU FORMULAIRE D'INSCRIPTION =====
         if (!empty($_POST)) {
             // Validation du token CSRF

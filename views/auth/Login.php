@@ -6,7 +6,8 @@
  * Permet à un utilisateur de se connecter avec email et mot de passe.
  *
  * Variables attendues :
- * @var string|null $erreur   Message d'erreur d'authentification (optionnel)
+ * @var string|null $erreur          Message d'erreur d'authentification (optionnel)
+ * @var string|null $avertissement   Avertissement tentatives restantes (optionnel)
  *
  * Traitement :
  * - Soumission vers UsersController::login() (même URL en POST)
@@ -17,6 +18,10 @@
  * Validation :
  * - Côté client : Champs required + type="email"
  * - Côté serveur : UsersController::login()
+ *
+ * Sécurité :
+ * - Rate limiting : Blocage après 5 tentatives échouées (15 minutes)
+ * - Avertissement si tentatives > 1 et tentatives < 5
  *
  * @package    Views\Auth
  * @created    2026
@@ -38,6 +43,17 @@
                         </div>
                         <script>
                             Notifications.error('<?= addslashes($erreur) ?>');
+                        </script>
+                    <?php endif; ?>
+
+                    <!-- Affichage de l'avertissement tentatives restantes -->
+                    <?php if(isset($avertissement)): ?>
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>💡 Avertissement :</strong> <?= $avertissement ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                        </div>
+                        <script>
+                            Notifications.info('<?= addslashes($avertissement) ?>');
                         </script>
                     <?php endif; ?>
 
