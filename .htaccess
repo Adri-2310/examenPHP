@@ -1,0 +1,12 @@
+# Protection du fichier .env contre l'accès direct
+<Files ".env">
+    Require all denied
+</Files>
+
+# Protection des fichiers sensibles
+<FilesMatch "\.(env|ini|log|sql)$">
+    Require all denied
+</FilesMatch>
+
+# Désactiver l'affichage des listings de répertoires
+Options -Indexes

@@ -86,18 +86,32 @@ class FavoritesController extends Controller
         if (!empty($_POST)) {
             // Validation du token CSRF
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-                die("Erreur de sécurité : Token CSRF invalide");
+                if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                    // ON AFFICHE LES DEUX VALEURS POUR COMPARER
+                    $recu = $_POST['csrf_token'] ?? 'VIDE';
+                    $attendu = $_SESSION['csrf_token'] ?? 'VIDE';
+                    die("Erreur de sécurité : Token Reçu [$recu] vs Token Attendu [$attendu]");
+                }
             }
 
             $favModel = new FavoritesModel();
 
             // Vérification de doublons : évite d'ajouter 2 fois la même recette
             if (!$favModel->exists($_SESSION['user']['id'], $_POST['id_api'])) {
-                // Insertion du favori en base de données
+                // SÉCURITÉ : Nettoyage et validation des données provenant de l'API externe
+                $titre = strip_tags($_POST['titre']); // Supprime les balises HTML/JavaScript
+
+                // Validation stricte de l'URL de l'image
+                $image_url = filter_var($_POST['image_url'], FILTER_VALIDATE_URL);
+                if ($image_url === false) {
+                    die("Erreur : URL d'image invalide");
+                }
+
+                // Insertion du favori en base de données avec données validées
                 $sql = "INSERT INTO favorites (user_id, id_api, titre, image_url) VALUES (?, ?, ?, ?)";
                 $db = \App\Core\Db::getInstance();
                 $stmt = $db->prepare($sql);
-                $stmt->execute([$_SESSION['user']['id'], $_POST['id_api'], $_POST['titre'], $_POST['image_url']]);
+                $stmt->execute([$_SESSION['user']['id'], $_POST['id_api'], $titre, $image_url]);
             }
 
             // Redirection vers la page des favoris

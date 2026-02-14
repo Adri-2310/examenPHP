@@ -48,7 +48,11 @@ class Db extends PDO
             $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         } catch(PDOException $e) {
-            die($e->getMessage());
+            // Log l'erreur pour le débogage (dans les logs serveur)
+            error_log("Erreur de connexion DB : " . $e->getMessage());
+
+            // Message générique pour l'utilisateur (ne révèle pas la structure DB)
+            die("Erreur de connexion à la base de données. Veuillez réessayer ultérieurement.");
         }
     }
 

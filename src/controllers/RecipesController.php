@@ -123,29 +123,44 @@ class RecipesController extends Controller
 
                 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
 
-                    // 3.1. Extraction et validation de l'extension
-                    $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-                    $extensions_autorisees = ['jpg', 'jpeg', 'png', 'webp'];
+                    // 3.1. Validation de la taille du fichier (limite à 5 MB)
+                    $maxSize = 5 * 1024 * 1024; // 5 MB
+                    if ($_FILES['image']['size'] > $maxSize) {
+                        $erreur = "L'image ne doit pas dépasser 5 MB";
+                    } else {
+                        // 3.2. Vérification du type MIME réel (sécurité renforcée)
+                        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                        $mimeType = $finfo->file($_FILES['image']['tmp_name']);
+                        $mimes_autorises = ['image/jpeg', 'image/png', 'image/webp'];
 
-                    if (in_array($extension, $extensions_autorisees)) {
+                        if (!in_array($mimeType, $mimes_autorises)) {
+                            $erreur = "Type de fichier non autorisé. Formats acceptés : JPG, PNG, WEBP";
+                        } else {
+                            // 3.3. Extraction et validation de l'extension
+                            $extension = strtolower(pathinfo(basename($_FILES['image']['name']), PATHINFO_EXTENSION));
+                            $extensions_autorisees = ['jpg', 'jpeg', 'png', 'webp'];
 
-                        // 3.2. Chemin absolu vers le dossier d'upload
-                        // dirname(__DIR__, 2) remonte de 2 niveaux : controllers → src → racine
-                        $dossierUpload = dirname(__DIR__, 2) . '/public/uploads/';
+                            if (in_array($extension, $extensions_autorisees)) {
 
-                        // 3.3. Création du dossier si inexistant
-                        if (!is_dir($dossierUpload)) {
-                            mkdir($dossierUpload, 0777, true);
-                        }
+                                // 3.4. Chemin absolu vers le dossier d'upload
+                                // dirname(__DIR__, 2) remonte de 2 niveaux : controllers → src → racine
+                                $dossierUpload = dirname(__DIR__, 2) . '/public/uploads/';
 
-                        // 3.4. Génération d'un nom unique pour éviter les collisions
-                        $nomUnique = uniqid() . '.' . $extension;
-                        $cheminComplet = $dossierUpload . $nomUnique;
+                                // 3.5. Création du dossier avec permissions sécurisées (755 au lieu de 777)
+                                if (!is_dir($dossierUpload)) {
+                                    mkdir($dossierUpload, 0755, true);
+                                }
 
-                        // 3.5. Déplacement du fichier temporaire vers le dossier final
-                        if (move_uploaded_file($_FILES['image']['tmp_name'], $cheminComplet)) {
-                            // Stockage du chemin relatif (pour l'affichage HTML)
-                            $image_url = '/uploads/' . $nomUnique;
+                                // 3.6. Génération d'un nom unique pour éviter les collisions
+                                $nomUnique = uniqid() . '.' . $extension;
+                                $cheminComplet = $dossierUpload . $nomUnique;
+
+                                // 3.7. Déplacement du fichier temporaire vers le dossier final
+                                if (move_uploaded_file($_FILES['image']['tmp_name'], $cheminComplet)) {
+                                    // Stockage du chemin relatif (pour l'affichage HTML)
+                                    $image_url = '/uploads/' . $nomUnique;
+                                }
+                            }
                         }
                     }
                 }
