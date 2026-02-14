@@ -33,7 +33,7 @@
 
     <?php if(isset($_SESSION['user'])): ?>
         <!-- Utilisateur connecté : Bouton de recherche -->
-        <a href="/recipes/api" class="btn btn-primary btn-lg mt-2">🔍 Chercher une nouvelle recette</a>
+        <a href="/api" class="btn btn-primary btn-lg mt-2">🔍 Chercher une nouvelle recette</a>
 
     <?php else: ?>
         <!-- Visiteur non connecté : Boutons d'authentification -->

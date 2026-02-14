@@ -21,6 +21,13 @@
  * @author     Projet Examen PHP
  * @created    2026
  */
+// Headers de sécurité
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("X-XSS-Protection: 1; mode=block");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https:;");
+header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+header("Referrer-Policy: strict-origin-when-cross-origin");
 
 // ===== ÉTAPE 1 : DÉFINITION DU DOSSIER RACINE =====
 // Permet d'utiliser des chemins absolus dans toute l'application

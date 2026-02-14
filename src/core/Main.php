@@ -72,6 +72,17 @@ class Main
             exit;
         }
 
+        // ===== VÉRIFICATION DU TOKEN CSRF =====
+        // Validation du token CSRF pour toutes les requêtes POST
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!isset($_POST['csrf_token']) ||
+                !isset($_SESSION['csrf_token']) ||
+                !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+                http_response_code(403);
+                die('Erreur de sécurité : Token CSRF invalide');
+            }
+        }
+
         // ===== ÉTAPE 2 : PARSING DE L'URL =====
         // Extraction des paramètres depuis l'URL (?url=controleur/action/param1/param2)
         $params = [];
