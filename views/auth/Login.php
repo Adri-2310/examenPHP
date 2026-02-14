@@ -45,7 +45,7 @@
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <div class="mb-3">
                             <label for="email" class="form-label">Adresse Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($_POST['email']??'') ?>" required>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Mot de passe</label>
