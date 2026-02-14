@@ -49,6 +49,14 @@
 
 <!-- Script de recherche API (AJAX avec fetch) -->
 <script>
+    /**
+     * Échappe les caractères HTML pour prévenir XSS
+     */
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
     // 1. ON DÉCLARE LE TOKEN EN HAUT, PROPREMENT
     // PHP va écrire la valeur ici une seule fois
     const csrfToken = "<?= $_SESSION['csrf_token'] ?>";
@@ -79,16 +87,15 @@
                         <div class="card h-100 shadow-sm border-0 bg-light">
                             <img src="${meal.strMealThumb}" class="card-img-top" alt="${meal.strMeal}" style="height: 200px; object-fit: cover;">
                             <div class="card-body d-flex flex-column">
-                                <h5 class="card-title text-primary">${meal.strMeal}</h5>
-                                <span class="badge bg-secondary mb-2 align-self-start">${meal.strCategory}</span>
-                                <p class="card-text small text-muted flex-grow-1">${meal.strInstructions.substring(0, 100)}...</p>
+                                <h5 class="card-title text-primary">${escapeHtml(meal.strMeal)}</h5>
+                                <span class="badge bg-secondary mb-2 align-self-start">${escapeHtml(meal.strCategory)}</span>
+                                <p class="card-text small text-muted flex-grow-1">${escapeHtml(meal.strInstructions.substring(0, 100))}...</p>
                                 
                                 <form action="/favorites/add" method="POST" class="mt-auto">
                                     <input type="hidden" name="csrf_token" value="${csrfToken}">
-                                    
-                                    <input type="hidden" name="id_api" value="${meal.idMeal}">
-                                    <input type="hidden" name="titre" value="${meal.strMeal}">
-                                    <input type="hidden" name="image_url" value="${meal.strMealThumb}">
+                                    <input type="hidden" name="id_api" value="${escapeHtml(meal.idMeal)}">
+                                    <input type="hidden" name="titre" value="${escapeHtml(meal.strMeal)}">
+                                    <input type="hidden" name="image_url" value="${escapeHtml(meal.strMealThumb)}">
                                     <button type="submit" class="btn btn-danger w-100 shadow-sm">
                                         ❤️ Ajouter à mes favoris
                                     </button>
