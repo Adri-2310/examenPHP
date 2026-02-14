@@ -39,6 +39,20 @@
     <!-- Feuilles de style -->
     <link rel="stylesheet" href="/public/css/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Styles du thème -->
+    <style>
+    [data-theme="dark"] {
+        --bs-body-bg: #1a1a1a;
+        --bs-body-color: #ffffff;
+    }
+    [data-theme="dark"] .card {
+        background-color: #2a2a2a;
+        color: #ffffff;
+    }
+    [data-theme="dark"] .navbar {
+        background-color: #2a2a2a !important;
+    }
+    </style>
 </head>
 <body>
     <!-- Header avec navigation -->
@@ -54,12 +68,15 @@
                     <a class="nav-link text-primary" href="/recipes">👨‍🍳 Mes Recettes</a>
                     <a class="nav-link text-danger" href="/favorites">❤️ Mes Favoris</a>
                     <a class="nav-link text-success" href="/api">🌍 Inspiration API</a>
-
                     <a class="nav-link ms-3" href="/users/logout">Déconnexion</a>
                 <?php else: ?>
                     <!-- Navigation pour visiteurs non connectés -->
                     <a class="nav-link" href="/users/login">Connexion</a>
                 <?php endif; ?>
+                <!-- Bouton de toggle thème -->
+                    <button id="theme-toggle" class="btn btn-outline-secondary ms-2" title="Changer de thème">
+                        <span id="theme-icon">🌙</span>
+                    </button>
                 </div>
             </div>
         </nav>
@@ -77,5 +94,8 @@
 
     <!-- Scripts JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Classes JavaScript personnalisées -->
+    <script src="/js/classes/ThemeToggle.js"></script>
+    <script src="/js/main.js"></script>
 </body>
 </html>
