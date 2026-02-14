@@ -179,7 +179,13 @@ class RecipesController extends Controller
                     $image_url
                 ]);
 
-                // 5. Redirection vers la liste des recettes
+                // 5. message de succès
+                $_SESSION['toasts'][] = [
+                    'type' => 'success',
+                    'message' => 'Recette créée avec succès !'
+                ];
+
+                // 6. Redirection vers la liste des recettes
                 header('Location: /recipes');
                 exit;
             } else {
@@ -283,7 +289,13 @@ class RecipesController extends Controller
                 $stmt = $db->prepare($sql);
                 $stmt->execute([$title, $description, $ingredientsJson, $instructions, $id]);
 
-                // 4. Redirection vers la page de détail de la recette
+                // 4. message de succès
+                $_SESSION['toasts'][] = [
+                    'type' => 'success',
+                    'message' => 'Recette modifiée avec succès !'
+                ];
+
+                // 5. Redirection vers la page de détail de la recette
                 header('Location: /recipes/lire/' . $id);
                 exit;
             }
@@ -369,6 +381,12 @@ class RecipesController extends Controller
             $db = \App\Core\Db::getInstance();
             $stmt = $db->prepare($sql);
             $stmt->execute([$id]);
+
+            // ===== ÉTAPE C : message DE SUCCÈS =====
+            $_SESSION['toasts'][] = [
+                'type' => 'success',
+                'message' => 'Recette supprimée avec succès !'
+            ];
         }
 
         // 4. Redirection vers la liste des recettes

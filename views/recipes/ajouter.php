@@ -37,6 +37,9 @@
     <!-- Affichage des erreurs de validation -->
     <?php if(isset($erreur)): ?>
         <div class="alert alert-danger"><?= $erreur ?></div>
+        <script>
+            Notifications.error('<?= addslashes($erreur) ?>');
+        </script>
     <?php endif; ?>
 
     <div class="card shadow-sm p-4 mt-2">

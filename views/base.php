@@ -39,6 +39,8 @@
     <!-- Feuilles de style -->
     <link rel="stylesheet" href="/public/css/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Toastify-js pour les notifications -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <!-- Styles du thème -->
     <style>
     [data-theme="dark"] {
@@ -97,5 +99,24 @@
     <!-- Classes JavaScript personnalisées -->
     <script src="/js/classes/ThemeToggle.js"></script>
     <script src="/js/main.js"></script>
+    <!-- Bibliothèque Toastify-js -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="/js/notification.js"></script>
+
+    <!-- Affichage des notifications Toast -->
+    <script>
+        <?php
+        // Affichage des toasts stockés en session
+        if (isset($_SESSION['toasts']) && is_array($_SESSION['toasts'])):
+            foreach ($_SESSION['toasts'] as $toast):
+                $type = $toast['type'] ?? 'info'; // success, error, info
+                $message = addslashes($toast['message'] ?? '');
+                echo "Notifications.{$type}('{$message}');\n";
+            endforeach;
+            // Suppression des toasts après affichage
+            unset($_SESSION['toasts']);
+        endif;
+        ?>
+    </script>
 </body>
 </html>

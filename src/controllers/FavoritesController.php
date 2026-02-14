@@ -112,6 +112,18 @@ class FavoritesController extends Controller
                 $db = \App\Core\Db::getInstance();
                 $stmt = $db->prepare($sql);
                 $stmt->execute([$_SESSION['user']['id'], $_POST['id_api'], $titre, $image_url]);
+
+                // message success
+                $_SESSION['toasts'][] = [
+                    'type' => 'success',
+                    'message' => 'Recette ajoutée à vos favoris !'
+                ];
+            } else {
+                // message recette déjà en favori
+                $_SESSION['toasts'][] = [
+                    'type' => 'info',
+                    'message' => 'Cette recette est déjà dans vos favoris.'
+                ];
             }
 
             // Redirection vers la page des favoris
@@ -152,6 +164,12 @@ class FavoritesController extends Controller
         $db = \App\Core\Db::getInstance();
         $stmt = $db->prepare($sql);
         $stmt->execute([$id, $_SESSION['user']['id']]);
+
+        // message de succès
+        $_SESSION['toasts'][] = [
+            'type' => 'success',
+            'message' => 'Recette supprimée de vos favoris !'
+        ];
 
         // Redirection vers la page des favoris
         header('Location: /favorites');

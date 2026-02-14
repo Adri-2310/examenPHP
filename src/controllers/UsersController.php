@@ -80,7 +80,13 @@ class UsersController extends Controller
                             'roles' => $user->role
                         ];
 
-                        // 4. Redirection vers la page d'accueil
+                        // 4. Notification de succès
+                        $_SESSION['toasts'][] = [
+                            'type' => 'success',
+                            'message' => 'Bienvenue ' . $user->nom . ' ! Connexion réussie.'
+                        ];
+
+                        // 5. Redirection vers la page d'accueil
                         header('Location: /');
                         exit;
                     } else {
@@ -107,8 +113,17 @@ class UsersController extends Controller
      */
     public function logout()
     {
+        // Récupération du nom avant suppression de la session
+        $userName = $_SESSION['user']['nom'] ?? 'utilisateur';
+
         // Suppression de la variable de session utilisateur
         unset($_SESSION['user']);
+
+        // Notification de déconnexion
+        $_SESSION['toasts'][] = [
+            'type' => 'info',
+            'message' => 'Vous avez été déconnecté avec succès. À bientôt ' . $userName . ' !'
+        ];
 
         // Redirection vers la page d'accueil
         header('Location: /');
@@ -173,7 +188,13 @@ class UsersController extends Controller
                         // 5. Enregistrement de l'utilisateur
                         $userModel->createUser($email, $hash, $nom);
 
-                        // 6. Redirection vers la page de connexion
+                        // 6. Notification de succès d'inscription
+                        $_SESSION['toasts'][] = [
+                            'type' => 'success',
+                            'message' => 'Inscription réussie ! Vous pouvez maintenant vous connecter avec votre email.'
+                        ];
+
+                        // 7. Redirection vers la page de connexion
                         header('Location: /users/login');
                         exit;
                     }

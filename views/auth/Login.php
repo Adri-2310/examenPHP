@@ -36,6 +36,9 @@
                         <div class="alert alert-danger">
                             <?= $erreur ?>
                         </div>
+                        <script>
+                            Notifications.error('<?= addslashes($erreur) ?>');
+                        </script>
                     <?php endif; ?>
 
                     <form method="post">
