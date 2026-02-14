@@ -1,8 +1,0 @@
-/* public/css/style.css */
-
-/* 1. Importation des bases (L'ordre est important !) */
-@import url('./base/variables.css');
-@import url('./base/reset.css');
-
-/* @import url('./layout/navbar.css'); */
-/* @import url('./components/buttons.css'); */
