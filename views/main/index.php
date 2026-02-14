@@ -95,10 +95,13 @@
                         </p>
                         
                         <form action="/favorites/add" method="POST" class="mt-3">
+                            <!-- Token CSRF pour la sécurité -->
+                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+
                             <input type="hidden" name="id_api" value="<?= $recette['idMeal'] ?>">
                             <input type="hidden" name="titre" value="<?= $recette['strMeal'] ?>">
                             <input type="hidden" name="image_url" value="<?= $recette['strMealThumb'] ?>">
-                            
+
                             <?php if(isset($_SESSION['user'])): ?>
                                 <button type="submit" class="btn btn-success w-100">
                                     ❤️ Ajouter aux favoris
