@@ -38,7 +38,11 @@ define('ROOT', dirname(__DIR__));
 // Obligatoire pour :
 // - L'authentification utilisateur ($_SESSION['user'])
 // - Le token CSRF ($_SESSION['csrf_token'])
-session_start();
+session_start(['cookie_lifetime' => 0,
+    'cookie_httponly' => true,
+    'cookie_secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+    'cookie_samesite' => 'Lax',
+    'use_strict_mode' => true]);
 
 // ===== ÉTAPE 3 : GÉNÉRATION DU TOKEN CSRF =====
 // Protection contre les attaques Cross-Site Request Forgery (CSRF)

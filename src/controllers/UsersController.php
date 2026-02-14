@@ -58,29 +58,35 @@ class UsersController extends Controller
 
             // Validation des champs obligatoires
             if (!empty($_POST['email']) && !empty($_POST['password'])) {
-
-                // 1. Recherche de l'utilisateur dans la base de données
-                $userModel = new UsersModel();
-                $user = $userModel->findOneByEmail($_POST['email']);
-
-                // 2. Vérification du mot de passe
-                // password_verify() compare le mot de passe en clair avec le hash stocké
-                if ($user && password_verify($_POST['password'], $user->password)) {
-
-                    // 3. Création de la session utilisateur
-                    $_SESSION['user'] = [
-                        'id' => $user->id,
-                        'email' => $user->email,
-                        'nom' => $user->nom,
-                        'roles' => $user->role
-                    ];
-
-                    // 4. Redirection vers la page d'accueil
-                    header('Location: /');
-                    exit;
+                
+                // Validation de l'email avec un format strict
+                if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+                    $erreur = "Email invalide";
                 } else {
-                    // Identifiants incorrects (message générique pour la sécurité)
-                    $erreur = "Identifiants incorrects";
+                    // 1. Recherche de l'utilisateur dans la base de données
+                    $userModel = new UsersModel();
+                    $user = $userModel->findOneByEmail($_POST['email']);
+
+                    // 2. Vérification du mot de passe
+                    // password_verify() compare le mot de passe en clair avec le hash stocké
+                    if ($user && password_verify($_POST['password'], $user->password)) {
+                        session_regenerate_id(true);
+
+                        // 3. Création de la session utilisateur
+                        $_SESSION['user'] = [
+                            'id' => $user->id,
+                            'email' => $user->email,
+                            'nom' => $user->nom,
+                            'roles' => $user->role
+                        ];
+
+                        // 4. Redirection vers la page d'accueil
+                        header('Location: /');
+                        exit;
+                    } else {
+                        // Identifiants incorrects (message générique pour la sécurité)
+                        $erreur = "Identifiants incorrects";
+                    }
                 }
             }
         }
@@ -146,24 +152,31 @@ class UsersController extends Controller
                 $nom = strip_tags($_POST['nom']);
                 $password = $_POST['password'];
 
-                // 2. Vérification d'unicité de l'email
-                $userModel = new UsersModel();
-                $existingUser = $userModel->findOneByEmail($email);
-
-                if ($existingUser) {
-                    $erreur = "Cet email est déjà utilisé";
+                // 2. Validation de l'email et du mot de passe
+                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $erreur = "Email invalide";
+                } elseif (strlen($password) < 8) {
+                    $erreur = "Le mot de passe doit contenir au moins 8 caractères";
                 } else {
-                    // 3. Hashing du mot de passe avec l'algorithme le plus sécurisé
-                    // PASSWORD_ARGON2ID : Standard recommandé en 2026
-                    // Avantages : Résistant aux attaques GPU, mémoire-intensive
-                    $hash = password_hash($password, PASSWORD_ARGON2ID);
+                    // 3. Vérification d'unicité de l'email
+                    $userModel = new UsersModel();
+                    $existingUser = $userModel->findOneByEmail($email);
 
-                    // 4. Enregistrement de l'utilisateur
-                    $userModel->createUser($email, $hash, $nom);
+                    if ($existingUser) {
+                        $erreur = "Cet email est déjà utilisé";
+                    } else {
+                        // 4. Hashing du mot de passe avec l'algorithme le plus sécurisé
+                        // PASSWORD_ARGON2ID : Standard recommandé en 2026
+                        // Avantages : Résistant aux attaques GPU, mémoire-intensive
+                        $hash = password_hash($password, PASSWORD_ARGON2ID);
 
-                    // 5. Redirection vers la page de connexion
-                    header('Location: /users/login');
-                    exit;
+                        // 5. Enregistrement de l'utilisateur
+                        $userModel->createUser($email, $hash, $nom);
+
+                        // 6. Redirection vers la page de connexion
+                        header('Location: /users/login');
+                        exit;
+                    }
                 }
             } else {
                 $erreur = "Le formulaire est incomplet";
