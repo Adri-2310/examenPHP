@@ -3,3 +3,8 @@ public/uploads/
 
 # Configuration Claude Code
 .claude/
+
+# env
+.env
+.env.local
+.env.*.php
