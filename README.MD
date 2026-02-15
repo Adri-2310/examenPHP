@@ -7,5 +7,3 @@
 3. Configurer les accès BDD dans `/src/Core/Db.php` si nécessaire (par défaut : root / sans mot de passe).
 4. Lancer le serveur : utilisé laragon
 
-## Comptes de test
-- adrien : adrien@test.com : 123456
