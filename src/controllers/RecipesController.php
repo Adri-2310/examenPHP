@@ -353,21 +353,13 @@ class RecipesController extends Controller
         }
 
         // ===== AFFICHAGE DU FORMULAIRE PRÉ-REMPLI =====
-        // Conversion des ingrédients JSON en chaîne de caractères pour l'affichage
-        // ["tomate", "oignon"] → "tomate, oignon"
-        $ingredientsList = '';
-        $ingArr = json_decode($recette->ingredients, true);
-        if (is_array($ingArr)) {
-            $ingredientsList = implode(', ', $ingArr);
-        } else {
-            // Fallback si les données ne sont pas au format JSON
-            $ingredientsList = $recette->ingredients;
-        }
+        // Les ingrédients sont maintenant au format JSON avec name et qty
+        // Pas besoin de conversion spéciale, on les passe directement à la vue
+        // La vue parse le JSON et pré-remplit les inputs
 
         // Affichage du formulaire de modification
         $this->render('recipes/edit', [
             'recette' => $recette,
-            'ingredientsList' => $ingredientsList,
             'titre' => 'Modifier : ' . $recette->title
         ]);
     }

@@ -57,15 +57,21 @@
                         </script>
                     <?php endif; ?>
 
-                    <form method="post">
+                    <form method="post" novalidate>
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <div class="mb-3">
                             <label for="email" class="form-label">Adresse Email</label>
                             <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($_POST['email']??'') ?>" required>
+                            <div class="invalid-feedback d-block" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem;">
+                                Veuillez entrer une adresse email valide.
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Mot de passe</label>
                             <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="invalid-feedback d-block" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem;">
+                                Le mot de passe doit contenir au moins 8 caractères.
+                            </div>
                         </div>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">Se connecter</button>
