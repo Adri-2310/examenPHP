@@ -175,4 +175,117 @@ class FavoritesController extends Controller
         header('Location: /favorites');
         exit;
     }
+
+    /**
+     * Bascule le statut favori d'une recette (ajoute ou supprime)
+     * Répond en JSON pour intégration AJAX
+     *
+     * @return void Envoie JSON et arrête l'exécution
+     *
+     * @security Vérification CSRF obligatoire
+     * @security Utilisateur doit être connecté
+     */
+    public function toggle()
+    {
+        header('Content-Type: application/json');
+
+        // Vérification connexion
+        if (!isset($_SESSION['user'])) {
+            http_response_code(401);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Vous devez être connecté',
+                'code' => 'NOT_LOGGED_IN'
+            ]);
+            exit;
+        }
+
+        // Vérification CSRF
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            http_response_code(403);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Token de sécurité invalide',
+                'code' => 'CSRF_INVALID'
+            ]);
+            exit;
+        }
+
+        // Validation des données
+        if (empty($_POST['id_api'])) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'ID API manquant',
+                'code' => 'MISSING_ID'
+            ]);
+            exit;
+        }
+
+        $favModel = new FavoritesModel();
+        $userId = $_SESSION['user']['id'];
+        $apiId = $_POST['id_api'];
+
+        // Vérifier si le favori existe
+        $favoriteExists = $favModel->exists($userId, $apiId);
+
+        if ($favoriteExists) {
+            // SUPPRESSION : le favori existe, on le supprime
+            $sql = "DELETE FROM favorites WHERE user_id = ? AND id_api = ?";
+            $db = \App\Core\Db::getInstance();
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$userId, $apiId]);
+
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Recette supprimée de vos favoris',
+                'action' => 'removed',
+                'isFavorite' => false
+            ]);
+            exit;
+        } else {
+            // AJOUT : le favori n'existe pas, on l'ajoute
+
+            // Validation des paramètres pour insertion
+            if (empty($_POST['titre']) || empty($_POST['image_url'])) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Titre ou image manquants',
+                    'code' => 'MISSING_DATA'
+                ]);
+                exit;
+            }
+
+            // Nettoyage des données
+            $titre = strip_tags($_POST['titre']);
+            $image_url = filter_var($_POST['image_url'], FILTER_VALIDATE_URL);
+
+            if ($image_url === false) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'URL d\'image invalide',
+                    'code' => 'INVALID_URL'
+                ]);
+                exit;
+            }
+
+            // Insertion
+            $sql = "INSERT INTO favorites (user_id, id_api, titre, image_url) VALUES (?, ?, ?, ?)";
+            $db = \App\Core\Db::getInstance();
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$userId, $apiId, $titre, $image_url]);
+
+            http_response_code(201);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Recette ajoutée à vos favoris',
+                'action' => 'added',
+                'isFavorite' => true
+            ]);
+            exit;
+        }
+    }
 }

@@ -12,7 +12,6 @@ class IngredientManager {
 
         // Vérifier que les éléments existent
         if (!this.addBtn || !this.wrapper) {
-            console.error('❌ IngredientManager : Éléments du DOM non trouvés');
             return;
         }
 
@@ -24,8 +23,6 @@ class IngredientManager {
 
         // Pré-remplir les ingrédients existants (pour la page d'édition)
         this.populateExistingIngredients();
-
-        console.log('✅ IngredientManager initialisé');
     }
 
     populateExistingIngredients() {
@@ -51,7 +48,7 @@ class IngredientManager {
                 this.addInput();
             }
         } catch (error) {
-            console.error('❌ Erreur lors du parsing des ingrédients :', error);
+            // Erreur silencieuse
             this.addInput();
         }
     }

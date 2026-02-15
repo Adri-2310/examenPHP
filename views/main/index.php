@@ -94,20 +94,16 @@
                             Origine : <?= $recette['strArea'] ?>
                         </p>
                         
-                        <form action="/favorites/add" method="POST" class="mt-3">
-                            <!-- Token CSRF pour la sécurité -->
-                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-
-                            <input type="hidden" name="id_api" value="<?= $recette['idMeal'] ?>">
-                            <input type="hidden" name="titre" value="<?= $recette['strMeal'] ?>">
-                            <input type="hidden" name="image_url" value="<?= $recette['strMealThumb'] ?>">
-
-                            <?php if(isset($_SESSION['user'])): ?>
-                                <button type="submit" class="btn btn-success w-100">
-                                    ❤️ Ajouter aux favoris
-                                </button>
-                            <?php endif; ?>
-                        </form>
+                        <!-- Bouton favori AJAX (seulement si connecté) -->
+                        <?php if(isset($_SESSION['user'])): ?>
+                            <button type="button" class="btn-toggle-fav btn btn-success w-100 mt-3"
+                                    data-id="<?= $recette['idMeal'] ?>"
+                                    data-titre="<?= htmlspecialchars($recette['strMeal']) ?>"
+                                    data-image="<?= $recette['strMealThumb'] ?>"
+                                    data-csrf="<?= $_SESSION['csrf_token'] ?>">
+                                ❤️ Ajouter aux favoris
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

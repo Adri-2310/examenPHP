@@ -50,10 +50,14 @@
                         <div class="card-footer bg-transparent d-flex justify-content-between">
                             <a href="https://www.themealdb.com/meal/<?= $fav->id_api ?>" target="_blank" class="btn btn-sm btn-info text-white">Voir la recette ↗</a>
 
-                            <form method="POST" action="/favorites/delete/<?= $fav->id ?>" style="display:inline;">
-                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Retirer des favoris ?')">🗑️ Retirer</button>
-                            </form>
+                            <!-- Bouton suppression AJAX -->
+                            <button type="button" class="btn-delete-fav btn btn-sm btn-danger"
+                                    data-id-api="<?= $fav->id_api ?>"
+                                    data-fav-id="<?= $fav->id ?>"
+                                    data-csrf="<?= $_SESSION['csrf_token'] ?>"
+                                    title="Retirer des favoris">
+                                🗑️ Retirer
+                            </button>
                         </div>
                     </div>
                 </div>

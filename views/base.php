@@ -37,7 +37,7 @@
     <title><?= $titre ?? 'Mon Site de Recettes' ?></title>
 
     <!-- Feuilles de style -->
-    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Toastify-js pour les notifications -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">

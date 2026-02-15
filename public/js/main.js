@@ -49,7 +49,5 @@ document.addEventListener('DOMContentLoaded', () => {
         if(typeof PasswordToggler !== 'undefined') {
             new PasswordToggler();
         }
-
-        console.log("🚀 Marmiton JS Loaded !");
     }, 100);
 });

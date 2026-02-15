@@ -13,7 +13,6 @@ class PasswordToggler {
         this.passwordInputs = document.querySelectorAll('input[type="password"]');
 
         if (this.passwordInputs.length === 0) {
-            console.log('⚠️ PasswordToggler : Aucun champ password trouvé');
             return;
         }
 
@@ -22,11 +21,9 @@ class PasswordToggler {
             try {
                 this.createToggleButton(input);
             } catch (error) {
-                console.error('❌ Erreur création bouton password :', error);
+                // Erreur silencieuse
             }
         });
-
-        console.log('✅ PasswordToggler initialisé');
     }
 
     addStyles() {

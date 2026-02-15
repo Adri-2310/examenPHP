@@ -10,7 +10,6 @@ class FormValidator {
         this.forms = forms;
 
         if (this.forms.length === 0) {
-            console.warn('⚠️ FormValidator : Aucun formulaire trouvé');
             return;
         }
 
@@ -28,8 +27,6 @@ class FormValidator {
             // Ajouter un listener 'submit' sur le formulaire
             form.addEventListener('submit', (e) => this.preventInvalidSubmit(e, form));
         });
-
-        console.log('✅ FormValidator initialisé');
     }
 
     validateField(input) {
@@ -106,7 +103,7 @@ class FormValidator {
             }
         })
         .catch(error => {
-            console.error('❌ Erreur lors de la vérification du nom :', error);
+            // Erreur silencieuse
         });
     }
 
