@@ -63,11 +63,11 @@
                 <textarea class="form-control" id="description" name="description" rows="2" placeholder="Ex: Un plat familial réconfortant..." required></textarea>
             </div>
 
-            <!-- Ingrédients au format CSV (transformés en JSON côté serveur) -->
+            <!-- Ingrédients dynamiques (gérés par JavaScript) -->
             <div class="mb-3">
-                <label for="ingredients" class="form-label">Ingrédients (séparés par des virgules)</label>
-                <input type="text" class="form-control" id="ingredients" name="ingredients" placeholder="Ex: Pommes de terre, Crème, Ail, Beurre" required>
-                <div class="form-text text-primary">⚠️ Séparez bien chaque ingrédient par une virgule.</div>
+                <label class="form-label">Ingrédients</label>
+                <div id="ingredients-wrapper"></div>
+                <button type="button" id="add-ingredient-btn" class="btn btn-secondary mt-2">+ Ajouter un ingrédient</button>
             </div>
 
             <div class="mb-3">

@@ -99,6 +99,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Classes JavaScript personnalisées -->
     <script src="/js/classes/ThemeToggle.js"></script>
+    <!-- Point d'entrée JavaScript principal -->
     <script src="/js/main.js"></script>
     <!-- Bibliothèque Toastify-js -->
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>

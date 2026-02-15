@@ -72,9 +72,19 @@
                         // Vérification du décodage et affichage de la liste
                         if ($ingredients && is_array($ingredients)):
                             foreach($ingredients as $ingredient):
+                                // Gérer les deux formats : ancien (chaîne) et nouveau (tableau avec name/qty)
+                                if (is_array($ingredient) && isset($ingredient['name'])):
+                                    // Nouveau format : {"name": "...", "qty": "..."}
+                                    $name = htmlspecialchars($ingredient['name']);
+                                    $qty = htmlspecialchars($ingredient['qty']);
+                                    $display = $name . ($qty ? " ($qty)" : "");
+                                else:
+                                    // Ancien format : chaîne simple
+                                    $display = htmlspecialchars(trim($ingredient));
+                                endif;
                         ?>
                                 <li class="list-group-item bg-light border-0 mb-1 rounded">
-                                    ✅ <?= htmlspecialchars(trim($ingredient)) ?>
+                                    ✅ <?= $display ?>
                                 </li>
                         <?php
                             endforeach;

@@ -52,9 +52,9 @@
             </div>
 
             <div class="mb-3">
-                <label for="ingredients" class="form-label">Ingrédients (séparés par des virgules)</label>
-                <input type="text" class="form-control" id="ingredients" name="ingredients" value="<?= htmlspecialchars($ingredientsList) ?>" required>
-                <div class="form-text text-primary">⚠️ Conservez bien la séparation par des virgules.</div>
+                <label class="form-label">Ingrédients</label>
+                <div id="ingredients-wrapper" data-ingredients="<?= htmlspecialchars(json_encode(json_decode($recette->ingredients, true) ?: [])) ?>"></div>
+                <button type="button" id="add-ingredient-btn" class="btn btn-secondary mt-2">+ Ajouter un ingrédient</button>
             </div>
 
             <div class="mb-3">

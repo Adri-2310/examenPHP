@@ -104,18 +104,45 @@ class RecipesController extends Controller
             }
             // ==========================================
 
-            // Validation des champs obligatoires
-            if (!empty($_POST['title']) && !empty($_POST['description']) && !empty($_POST['ingredients']) && !empty($_POST['instructions'])) {
+            // Validation des champs obligatoires (nouveau format d'ingrédients)
+            if (!empty($_POST['title']) && !empty($_POST['description']) && isset($_POST['ingredients']) && !empty($_POST['instructions'])) {
 
                 // 1. Nettoyage des données utilisateur (protection XSS)
                 $title = strip_tags($_POST['title']);
                 $description = strip_tags($_POST['description']);
                 $instructions = strip_tags($_POST['instructions']);
 
-                // 2. Transformation des ingrédients en JSON
-                // "tomate, oignon, ail" → ["tomate", "oignon", "ail"]
-                $ingredientsArray = explode(',', $_POST['ingredients']);
-                $ingredientsArray = array_map('trim', $ingredientsArray);
+                // 2. Transformation des ingrédients en JSON (nouveau format avec quantités)
+                // Nouveau format : ingredients[name][] et ingredients[qty][]
+                // Exemple : {"name": "Tomate", "qty": "500g"}
+                $ingredientsArray = [];
+
+                if (isset($_POST['ingredients']['name']) && isset($_POST['ingredients']['qty'])) {
+                    $names = $_POST['ingredients']['name'];
+                    $quantities = $_POST['ingredients']['qty'];
+
+                    // Vérifier que les deux tableaux ont la même longueur
+                    if (is_array($names) && is_array($quantities) && count($names) === count($quantities)) {
+                        foreach ($names as $index => $name) {
+                            $cleanName = strip_tags(trim($name));
+                            $cleanQty = strip_tags(trim($quantities[$index]));
+
+                            // Vérifier que le nom n'est pas vide
+                            if (!empty($cleanName)) {
+                                $ingredientsArray[] = [
+                                    'name' => $cleanName,
+                                    'qty' => $cleanQty
+                                ];
+                            }
+                        }
+                    }
+                }
+
+                // Si aucun ingrédient valide, on rejette
+                if (empty($ingredientsArray)) {
+                    $erreur = "Vous devez ajouter au moins un ingrédient.";
+                }
+
                 $ingredientsJson = json_encode($ingredientsArray);
 
                 // ===== GESTION DE L'UPLOAD D'IMAGE =====
@@ -271,16 +298,40 @@ class RecipesController extends Controller
                 die("Erreur de sécurité : Token CSRF invalide");
             }
 
-            if (!empty($_POST['title']) && !empty($_POST['description']) && !empty($_POST['ingredients']) && !empty($_POST['instructions'])) {
+            if (!empty($_POST['title']) && !empty($_POST['description']) && isset($_POST['ingredients']) && !empty($_POST['instructions'])) {
 
                 // 1. Nettoyage des données (protection XSS)
                 $title = strip_tags($_POST['title']);
                 $description = strip_tags($_POST['description']);
                 $instructions = strip_tags($_POST['instructions']);
 
-                // 2. Transformation des ingrédients en JSON
-                $ingredientsArray = explode(',', $_POST['ingredients']);
-                $ingredientsArray = array_map('trim', $ingredientsArray);
+                // 2. Transformation des ingrédients en JSON (nouveau format avec quantités)
+                $ingredientsArray = [];
+
+                if (isset($_POST['ingredients']['name']) && isset($_POST['ingredients']['qty'])) {
+                    $names = $_POST['ingredients']['name'];
+                    $quantities = $_POST['ingredients']['qty'];
+
+                    if (is_array($names) && is_array($quantities) && count($names) === count($quantities)) {
+                        foreach ($names as $index => $name) {
+                            $cleanName = strip_tags(trim($name));
+                            $cleanQty = strip_tags(trim($quantities[$index]));
+
+                            if (!empty($cleanName)) {
+                                $ingredientsArray[] = [
+                                    'name' => $cleanName,
+                                    'qty' => $cleanQty
+                                ];
+                            }
+                        }
+                    }
+                }
+
+                // Si aucun ingrédient valide, on rejette
+                if (empty($ingredientsArray)) {
+                    $erreur = "Vous devez ajouter au moins un ingrédient.";
+                }
+
                 $ingredientsJson = json_encode($ingredientsArray);
 
                 // 3. Mise à jour en base de données avec requête préparée
