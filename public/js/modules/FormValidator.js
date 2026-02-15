@@ -46,6 +46,15 @@ class FormValidator {
         } else if (input.type === 'password') {
             // Password : tester si length >= 8
             isValid = input.value.length >= 8;
+        } else if (input.name === 'nom') {
+            // Nom : minimum 3 caractères et pas vide
+            isValid = input.value.trim().length >= 3;
+
+            // Si le nom est valide et contient au moins 3 caractères, vérifier avec le serveur
+            if (isValid && input.value.trim().length >= 3) {
+                this.checkNomAsynchrone(input);
+                return; // Attendre la réponse du serveur
+            }
         } else {
             // Requis : tester si value.trim() !== ''
             isValid = !isEmpty;
@@ -65,10 +74,50 @@ class FormValidator {
         return isValid;
     }
 
-    showErrorMessage(input) {
+    checkNomAsynchrone(input) {
+        // Vérifier le nom via AJAX avec le serveur
+        const nom = input.value.trim();
+
+        // Récupérer le token CSRF depuis le formulaire
+        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+        // Créer un FormData pour envoyer les données
+        const formData = new FormData();
+        formData.append('nom', nom);
+        formData.append('csrf_token', csrfToken);
+
+        // Faire un fetch POST vers la route correcte (/?url=users/checkNom)
+        fetch('/?url=users/checkNom', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                // Le nom existe déjà
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+                this.showErrorMessage(input, data.message);
+            } else {
+                // Le nom est disponible
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+                this.hideErrorMessage(input);
+            }
+        })
+        .catch(error => {
+            console.error('❌ Erreur lors de la vérification du nom :', error);
+        });
+    }
+
+    showErrorMessage(input, customMessage = null) {
         // Afficher le message d'erreur sous le champ
         const errorDiv = input.nextElementSibling;
         if (errorDiv && errorDiv.classList.contains('invalid-feedback')) {
+            // Si un message personnalisé est fourni, l'utiliser
+            if (customMessage) {
+                errorDiv.textContent = customMessage;
+            }
             errorDiv.style.display = 'block';
         }
     }

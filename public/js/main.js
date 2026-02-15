@@ -9,7 +9,8 @@ function loadModules() {
     const scripts = [
         '/js/modules/IngredientManager.js',
         '/js/modules/FormValidator.js',
-        '/js/modules/FavoriteToggler.js'
+        '/js/modules/FavoriteToggler.js',
+        '/js/modules/PasswordToggler.js'
     ];
 
     scripts.forEach(src => {
@@ -42,6 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Activer les favoris partout
         if(typeof FavoriteToggler !== 'undefined') {
             new FavoriteToggler();
+        }
+
+        // 4. Activer l'affichage/masquage des mots de passe
+        if(typeof PasswordToggler !== 'undefined') {
+            new PasswordToggler();
         }
 
         console.log("🚀 Marmiton JS Loaded !");

@@ -48,7 +48,7 @@
                             <label for="nom" class="form-label">Votre Nom (ou Pseudo)</label>
                             <input type="text" class="form-control" id="nom" name="nom" value="<?= htmlspecialchars($_POST['nom'] ?? '') ?>" required>
                             <div class="invalid-feedback d-block" style="display: none; color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem;">
-                                Veuillez entrer un nom.
+                                Veuillez entrer un nom ou un speudo.
                             </div>
                         </div>
                         <div class="mb-3">

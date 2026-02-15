@@ -279,4 +279,58 @@ class UsersController extends Controller
             'erreur' => $erreur ?? null
         ]);
     }
+
+    /**
+     * Vérifie si un nom d'utilisateur existe déjà en base de données
+     * Utilisé pour la validation client (AJAX) lors de l'inscription
+     *
+     * @return void Répond en JSON et arrête l'exécution
+     *
+     * @api POST /users/checkNom
+     * @param string $_POST['nom'] Nom d'utilisateur à vérifier
+     */
+    public function checkNom()
+    {
+        header('Content-Type: application/json');
+
+        // Vérifier que le nom est fourni
+        if (!isset($_POST['nom']) || empty($_POST['nom'])) {
+            echo json_encode([
+                'status' => 'error',
+                'exists' => false,
+                'message' => 'Nom non fourni'
+            ]);
+            exit;
+        }
+
+        $nom = strip_tags(trim($_POST['nom']));
+
+        // Validation : le nom doit contenir au moins 3 caractères
+        if (strlen($nom) < 3) {
+            echo json_encode([
+                'status' => 'error',
+                'exists' => false,
+                'message' => 'Le nom doit contenir au moins 3 caractères'
+            ]);
+            exit;
+        }
+
+        // Vérifier en base de données
+        $userModel = new UsersModel();
+        $sql = "SELECT id FROM users WHERE nom = ?";
+        $db = \App\Core\Db::getInstance();
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$nom]);
+        $user = $stmt->fetch();
+
+        $exists = $user !== false;
+
+        // Répondre en JSON
+        echo json_encode([
+            'status' => 'success',
+            'exists' => $exists,
+            'message' => $exists ? 'Ce nom est déjà utilisé' : 'Nom disponible'
+        ]);
+        exit;
+    }
 }
