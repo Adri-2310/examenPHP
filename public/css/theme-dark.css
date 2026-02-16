@@ -106,34 +106,47 @@ body[data-theme="dark"] .navbar {
 }
 
 body[data-theme="dark"] .navbar-brand {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-bold);
     color: var(--color-text-primary) !important;
+    font-size: 1.1rem;
 }
 
 body[data-theme="dark"] .nav-link {
     color: var(--color-text-secondary) !important;
-    transition: color var(--transition-fast);
-    padding: var(--spacing-md) var(--spacing-lg) !important;
 }
 
 body[data-theme="dark"] .nav-link:hover {
     color: var(--color-text-primary) !important;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body[data-theme="dark"] #theme-toggle {
+    border-color: var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+body[data-theme="dark"] #theme-toggle:hover {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
 }
 
 /* CARDS */
 body[data-theme="dark"] .card {
     background-color: var(--color-bg-secondary);
-    border: 1px solid var(--color-border);
+    border: none;
     color: var(--color-text-primary);
     box-shadow: var(--shadow-md);
     border-radius: var(--border-radius-lg);
     transition: all var(--transition-base);
+    overflow: hidden;
 }
 
 body[data-theme="dark"] .card:hover {
     box-shadow: var(--shadow-lg);
-    transform: translateY(-4px);
+    transform: translateY(-6px);
+}
+
+body[data-theme="dark"] .card-img-top {
+    border-radius: 0;
 }
 
 body[data-theme="dark"] .card-header {
@@ -143,12 +156,23 @@ body[data-theme="dark"] .card-header {
 }
 
 body[data-theme="dark"] .card-body {
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
+    padding: var(--spacing-lg);
 }
 
 body[data-theme="dark"] .card-title {
     color: var(--color-text-primary);
-    font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-bold);
+    font-size: 1.1rem;
+}
+
+body[data-theme="dark"] .card-text {
+    color: var(--color-text-secondary);
+}
+
+body[data-theme="dark"] .card-footer {
+    background-color: transparent;
+    border-top: 1px solid var(--color-border);
 }
 
 /* BOUTONS */

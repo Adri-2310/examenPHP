@@ -106,34 +106,47 @@ body[data-theme="light"] .navbar {
 }
 
 body[data-theme="light"] .navbar-brand {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-bold);
     color: var(--color-text-primary) !important;
+    font-size: 1.1rem;
 }
 
 body[data-theme="light"] .nav-link {
     color: var(--color-text-secondary) !important;
-    transition: color var(--transition-fast);
-    padding: var(--spacing-md) var(--spacing-lg) !important;
 }
 
 body[data-theme="light"] .nav-link:hover {
     color: var(--color-text-primary) !important;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+body[data-theme="light"] #theme-toggle {
+    border-color: var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+body[data-theme="light"] #theme-toggle:hover {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
 }
 
 /* CARDS */
 body[data-theme="light"] .card {
     background-color: var(--color-bg-primary);
-    border: 1px solid var(--color-border);
+    border: none;
     color: var(--color-text-primary);
     box-shadow: var(--shadow-md);
     border-radius: var(--border-radius-lg);
     transition: all var(--transition-base);
+    overflow: hidden;
 }
 
 body[data-theme="light"] .card:hover {
     box-shadow: var(--shadow-lg);
-    transform: translateY(-4px);
+    transform: translateY(-6px);
+}
+
+body[data-theme="light"] .card-img-top {
+    border-radius: 0;
 }
 
 body[data-theme="light"] .card-header {
@@ -143,12 +156,23 @@ body[data-theme="light"] .card-header {
 }
 
 body[data-theme="light"] .card-body {
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
+    padding: var(--spacing-lg);
 }
 
 body[data-theme="light"] .card-title {
     color: var(--color-text-primary);
-    font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-bold);
+    font-size: 1.1rem;
+}
+
+body[data-theme="light"] .card-text {
+    color: var(--color-text-secondary);
+}
+
+body[data-theme="light"] .card-footer {
+    background-color: transparent;
+    border-top: 1px solid var(--color-border);
 }
 
 /* BOUTONS */
