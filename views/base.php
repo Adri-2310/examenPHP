@@ -47,28 +47,39 @@
 <body>
     <!-- Header avec navigation -->
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="container">
-                <a class="navbar-brand" href="/">🍽️ Marmiton-Exam</a>
-                <div class="navbar-nav">
-                    <a class="nav-link" href="/">Accueil</a>
-
-                <?php if(isset($_SESSION['user'])): ?>
-                    <!-- Navigation pour utilisateurs connectés -->
-                    <a class="nav-link text-primary" href="/recipes">👨‍🍳 Mes Recettes</a>
-                    <a class="nav-link text-danger" href="/favorites">❤️ Mes Favoris</a>
-                    <a class="nav-link text-success" href="/api">🌍 Inspiration</a>
-                    <a class="nav-link ms-3" href="/contact/contact">📧 Contact</a>
-                    <a class="nav-link ms-3" href="/users/logout">Déconnexion</a>
-                <?php else: ?>
-                    <!-- Navigation pour visiteurs non connectés -->
-                    <a class="nav-link" href="/users/login">Connexion</a>
-                <?php endif; ?>
-                <!-- Bouton de toggle thème -->
-                    <button id="theme-toggle" class="btn btn-outline-secondary ms-2" title="Changer de thème">
+        <nav class="navbar navbar-expand-lg navbar-center">
+            <div class="container-fluid px-3 navbar-content">
+                <!-- Logo + Bouton thème (à gauche) -->
+                <div class="d-flex align-items-center gap-2">
+                    <a class="navbar-brand fw-bold" href="/">🍽️ Marmiton-Exam</a>
+                    <button id="theme-toggle" class="btn btn-outline-secondary" title="Changer de thème">
                         <span id="theme-icon">🌙</span>
                     </button>
                 </div>
+
+                <!-- Menu collapse centré (au milieu en desktop, collapsible en mobile) -->
+                <div class="collapse navbar-collapse flex-grow-0" id="navbarNav">
+                    <div class="navbar-nav navbar-center-items">
+                        <a class="nav-link" href="/">Accueil</a>
+
+                        <?php if(isset($_SESSION['user'])): ?>
+                            <!-- Navigation pour utilisateurs connectés -->
+                            <a class="nav-link" href="/recipes">👨‍🍳 Mes Recettes</a>
+                            <a class="nav-link" href="/favorites">❤️ Mes Favoris</a>
+                            <a class="nav-link" href="/api">🌍 Inspiration</a>
+                            <a class="nav-link" href="/contact/contact">📧 Contact</a>
+                            <a class="nav-link" href="/users/logout">Déconnexion</a>
+                        <?php else: ?>
+                            <!-- Navigation pour visiteurs non connectés -->
+                            <a class="nav-link" href="/users/login">Connexion</a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Burger (à droite en mobile seulement) -->
+                <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
             </div>
         </nav>
     </header>
