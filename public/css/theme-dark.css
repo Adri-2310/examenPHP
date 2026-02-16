@@ -176,9 +176,18 @@ body[data-theme="dark"] .card-footer {
 }
 
 /* BOUTONS */
+body[data-theme="dark"] .btn {
+    position: relative;
+}
+
+body[data-theme="dark"] .btn::before {
+    background: rgba(255, 255, 255, 0.3);
+}
+
 body[data-theme="dark"] .btn-outline-secondary {
     border-color: var(--color-border);
     color: var(--color-text-secondary);
+    border-width: 2px;
 }
 
 body[data-theme="dark"] .btn-outline-secondary:hover {
@@ -203,11 +212,65 @@ body[data-theme="dark"] .btn-primary:hover {
 body[data-theme="dark"] .btn-danger {
     background-color: var(--color-danger);
     border-color: var(--color-danger);
+    color: #ffffff;
 }
 
 body[data-theme="dark"] .btn-success {
     background-color: var(--color-success);
     border-color: var(--color-success);
+    color: #ffffff;
+}
+
+body[data-theme="dark"] .btn-info {
+    background-color: var(--color-info);
+    border-color: var(--color-info);
+    color: #ffffff;
+}
+
+body[data-theme="dark"] .btn:disabled {
+    opacity: 0.5;
+}
+
+/* BADGES */
+body[data-theme="dark"] .badge {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+}
+
+/* ALERTES */
+body[data-theme="dark"] .alert {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+}
+
+/* SECTIONS RECETTE */
+body[data-theme="dark"] .list-group-item {
+    background-color: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+}
+
+body[data-theme="dark"] .list-group-item:hover {
+    background-color: #505050;
+    color: var(--color-text-primary);
+}
+
+body[data-theme="dark"] .recipe-instructions {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+}
+
+body[data-theme="dark"] .recipe-ingredients {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+}
+
+body[data-theme="dark"] .recipe-ingredients .list-group-item {
+    background-color: transparent;
+    border: none;
+    color: var(--color-text-primary);
 }
 
 /* FORMULAIRES */
@@ -245,6 +308,26 @@ body[data-theme="dark"] .form-text {
     color: #a0a0a0;
     font-size: var(--font-size-sm);
     margin-top: var(--spacing-xs);
+}
+
+/* File Input Dark */
+body[data-theme="dark"] input[type="file"] {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    border: 2px solid var(--color-border);
+}
+
+body[data-theme="dark"] input[type="file"]::file-selector-button {
+    background-color: var(--color-info);
+    color: #ffffff;
+    border-color: var(--color-info);
+}
+
+body[data-theme="dark"] input[type="file"]::file-selector-button:hover {
+    background-color: #5dade2;
+    border-color: #5dade2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
 }
 
 /* ALERTES */

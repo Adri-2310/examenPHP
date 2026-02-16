@@ -176,9 +176,18 @@ body[data-theme="light"] .card-footer {
 }
 
 /* BOUTONS */
+body[data-theme="light"] .btn {
+    position: relative;
+}
+
+body[data-theme="light"] .btn::before {
+    background: rgba(0, 0, 0, 0.1);
+}
+
 body[data-theme="light"] .btn-outline-secondary {
     border-color: var(--color-border);
     color: var(--color-text-secondary);
+    border-width: 2px;
 }
 
 body[data-theme="light"] .btn-outline-secondary:hover {
@@ -203,11 +212,65 @@ body[data-theme="light"] .btn-primary:hover {
 body[data-theme="light"] .btn-danger {
     background-color: var(--color-danger);
     border-color: var(--color-danger);
+    color: #ffffff;
 }
 
 body[data-theme="light"] .btn-success {
     background-color: var(--color-success);
     border-color: var(--color-success);
+    color: #ffffff;
+}
+
+body[data-theme="light"] .btn-info {
+    background-color: var(--color-info);
+    border-color: var(--color-info);
+    color: #ffffff;
+}
+
+body[data-theme="light"] .btn:disabled {
+    opacity: 0.5;
+}
+
+/* BADGES */
+body[data-theme="light"] .badge {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+}
+
+/* ALERTES */
+body[data-theme="light"] .alert {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+}
+
+/* SECTIONS RECETTE */
+body[data-theme="light"] .list-group-item {
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+}
+
+body[data-theme="light"] .list-group-item:hover {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+}
+
+body[data-theme="light"] .recipe-instructions {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+}
+
+body[data-theme="light"] .recipe-ingredients {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+}
+
+body[data-theme="light"] .recipe-ingredients .list-group-item {
+    background-color: transparent;
+    border: none;
+    color: var(--color-text-primary);
 }
 
 /* FORMULAIRES */
@@ -245,6 +308,26 @@ body[data-theme="light"] .form-text {
     color: #666666;
     font-size: var(--font-size-sm);
     margin-top: var(--spacing-xs);
+}
+
+/* File Input Light */
+body[data-theme="light"] input[type="file"] {
+    background-color: #ffffff;
+    color: var(--color-text-primary);
+    border: 2px solid var(--color-border);
+}
+
+body[data-theme="light"] input[type="file"]::file-selector-button {
+    background-color: var(--color-info);
+    color: #ffffff;
+    border-color: var(--color-info);
+}
+
+body[data-theme="light"] input[type="file"]::file-selector-button:hover {
+    background-color: #5dade2;
+    border-color: #5dade2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
 }
 
 /* ALERTES */

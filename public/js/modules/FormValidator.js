@@ -15,10 +15,10 @@ class FormValidator {
 
         // Boucler sur chaque formulaire
         this.forms.forEach(form => {
-            // Récupérer tous les inputs de ce formulaire
-            const inputs = form.querySelectorAll('input[required]');
+            // Récupérer tous les inputs ET textareas de ce formulaire
+            const inputs = form.querySelectorAll('input[required], textarea[required]');
 
-            // Ajouter les listeners 'input' et 'blur' sur chaque input
+            // Ajouter les listeners 'input' et 'blur' sur chaque input/textarea
             inputs.forEach(input => {
                 input.addEventListener('input', () => this.validateField(input));
                 input.addEventListener('blur', () => this.validateField(input));
@@ -44,14 +44,23 @@ class FormValidator {
             // Password : tester si length >= 8
             isValid = input.value.length >= 8;
         } else if (input.name === 'nom') {
-            // Nom : minimum 3 caractères et pas vide
-            isValid = input.value.trim().length >= 3;
+            // Nom : minimum 2 caractères et pas vide (comme indiqué dans le formulaire)
+            isValid = input.value.trim().length >= 2;
 
-            // Si le nom est valide et contient au moins 3 caractères, vérifier avec le serveur
-            if (isValid && input.value.trim().length >= 3) {
+            // Si le nom est valide et contient au moins 2 caractères, vérifier avec le serveur
+            if (isValid && input.value.trim().length >= 2) {
+                // Appliquer temporairement la classe is-valid
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+                this.hideErrorMessage(input);
+
+                // Puis vérifier avec le serveur
                 this.checkNomAsynchrone(input);
                 return; // Attendre la réponse du serveur
             }
+        } else if (input.name === 'message' || input.tagName === 'TEXTAREA') {
+            // Message/Textarea : minimum 10 caractères
+            isValid = input.value.trim().length >= 10;
         } else {
             // Requis : tester si value.trim() !== ''
             isValid = !isEmpty;
@@ -128,12 +137,16 @@ class FormValidator {
     }
 
     preventInvalidSubmit(e, form) {
-        // Vérifier si tous les champs sont valides
-        const inputs = form.querySelectorAll('input[required]');
+        // Vérifier si tous les champs sont valides (inputs ET textareas)
+        const inputs = form.querySelectorAll('input[required], textarea[required]');
         let allValid = true;
 
         inputs.forEach(input => {
-            if (!this.validateField(input)) {
+            // Valider le champ et vérifier qu'il a la classe is-valid
+            this.validateField(input);
+
+            // Vérifier si le champ a la classe is-invalid
+            if (input.classList.contains('is-invalid')) {
                 allValid = false;
             }
         });

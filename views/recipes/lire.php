@@ -62,7 +62,8 @@
             <div class="row">
                 <div class="col-md-4 mb-4">
                     <h4 class="text-primary mb-3">🛒 Ingrédients</h4>
-                    <ul class="list-group list-group-flush shadow-sm">
+                    <div class="recipe-ingredients">
+                    <ul class="list-group list-group-flush">
                         <?php
                         // === DÉCODAGE JSON DES INGRÉDIENTS ===
                         // Les ingrédients sont stockés en JSON : ["tomate", "oignon", "ail"]
@@ -83,7 +84,7 @@
                                     $display = htmlspecialchars(trim($ingredient));
                                 endif;
                         ?>
-                                <li class="list-group-item bg-light border-0 mb-1 rounded">
+                                <li class="list-group-item border-0 mb-1 rounded " style="white-space:">
                                     ✅ <?= $display ?>
                                 </li>
                         <?php
@@ -95,11 +96,12 @@
                             <li class="list-group-item"><?= htmlspecialchars($recette->ingredients) ?></li>
                         <?php endif; ?>
                     </ul>
+                    </div>
                 </div>
                 
                 <div class="col-md-8">
                     <h4 class="text-primary mb-3">🍳 Préparation</h4>
-                    <div class="p-4 bg-light rounded shadow-sm" style="white-space: pre-wrap; line-height: 1.8;">
+                    <div class="recipe-instructions">
                     <?= htmlspecialchars($recette->instructions) ?>
                     </div>
                 </div>
@@ -108,7 +110,7 @@
         
         <!-- Boutons de modification/suppression (uniquement pour le créateur) -->
         <?php if(isset($_SESSION['user']) && $_SESSION['user']['id'] == $recette->user_id): ?>
-            <div class="card-footer bg-white text-end p-3 border-top-0">
+            <div class="card-footer text-end p-3 border-top-0">
                 <a href="/recipes/edit/<?= $recette->id ?>" class="btn btn-warning text-dark fw-bold px-4">✏️ Modifier</a>
                 <form method="POST" action="/recipes/delete/<?= $recette->id ?>" style="display:inline;">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
