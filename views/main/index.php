@@ -53,22 +53,14 @@
         <div class="row">
             <?php foreach($favoris as $fav): ?>
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100 border-danger shadow-sm">
+                    <div class="card h-100 shadow-sm">
                         <img src="<?= $fav->image_url ?>" class="card-img-top" alt="<?= htmlspecialchars($fav->titre) ?>" style="height: 200px; object-fit: cover;">
                         
                         <div class="card-body">
                             <h5 class="card-title"><?= htmlspecialchars($fav->titre) ?></h5>
                             
-                            <?php if(!empty($fav->note)): ?>
-                                <div class="alert alert-warning py-1 small">
-                                    📝 <?= htmlspecialchars($fav->note) ?>
-                                </div>
-                            <?php else: ?>
-                                <p class="text-muted small">Pas encore de note.</p>
-                            <?php endif; ?>
-                            
                             <div class="d-flex justify-content-between mt-3">
-                                <a href="/favorites" class="btn btn-sm btn-outline-danger">Gérer</a>
+                                <a href="/favorites" class="btn btn-sm btn-outline-secondary">Gérer</a>
                                 <a href="https://www.themealdb.com/meal/<?= $fav->id_api ?>" target="_blank" class="btn btn-sm btn-link">Voir la recette ↗</a>
                             </div>
                         </div>

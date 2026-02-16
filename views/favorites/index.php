@@ -29,7 +29,7 @@
 <div class="container mt-4 mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>❤️ Mes Favoris (Internet)</h1>
-        <a href="/api" class="btn btn-outline-danger">🔍 Chercher l'inspiration</a>
+        <a href="/api" class="btn btn-outline-primary">🔍 Chercher l'inspiration</a>
     </div>
 
     <?php if(empty($favoris)): ?>
@@ -40,7 +40,7 @@
         <div class="row">
             <?php foreach($favoris as $fav): ?>
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm border-danger">
+                    <div class="card h-100 shadow-sm">
                         <img src="<?= $fav->image_url ?>" class="card-img-top" style="height: 200px; object-fit: cover;" alt="<?= htmlspecialchars($fav->titre) ?>">
                         
                         <div class="card-body">

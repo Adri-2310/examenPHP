@@ -100,7 +100,7 @@
                 <div class="col-md-8">
                     <h4 class="text-primary mb-3">🍳 Préparation</h4>
                     <div class="p-4 bg-light rounded shadow-sm" style="white-space: pre-wrap; line-height: 1.8;">
-<?= htmlspecialchars($recette->instructions) ?>
+                    <?= htmlspecialchars($recette->instructions) ?>
                     </div>
                 </div>
             </div>

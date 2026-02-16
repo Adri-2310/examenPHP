@@ -37,24 +37,12 @@
     <title><?= $titre ?? 'Mon Site de Recettes' ?></title>
 
     <!-- Feuilles de style -->
-    <link rel="stylesheet" href="/css/style.css">
+    <!-- Bootstrap 5.3.0 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Toastify-js pour les notifications -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <!-- Styles du thème -->
-    <style>
-    [data-theme="dark"] {
-        --bs-body-bg: #1a1a1a;
-        --bs-body-color: #ffffff;
-    }
-    [data-theme="dark"] .card {
-        background-color: #2a2a2a;
-        color: #ffffff;
-    }
-    [data-theme="dark"] .navbar {
-        background-color: #2a2a2a !important;
-    }
-    </style>
+    <!-- CSS personnalisé (inclut les thèmes light/dark et styles globaux) -->
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <!-- Header avec navigation -->

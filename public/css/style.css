@@ -1,0 +1,426 @@
+/**
+ * STYLE.CSS - Point d'entrée CSS principal
+ *
+ * Ce fichier organise et importe tous les fichiers CSS du projet
+ * Structure modulaire :
+ * 1. Imports des thèmes (light/dark)
+ * 2. Styles globaux
+ * 3. Surcharges Bootstrap si nécessaire
+ *
+ * @version 1.0
+ * @created 2026-02-16
+ */
+
+/* ========== IMPORTS DES THÈMES ========== */
+
+@import url('theme-light.css');
+@import url('theme-dark.css');
+
+/* ========== STYLES GLOBAUX ========== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    font-weight: var(--font-weight-regular);
+    transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+/* Fallback pour les navigateurs sans CSS variables */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Appliquer le thème light par défaut au body (avant que data-theme soit appliqué) */
+body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+}
+
+/* ========== TYPOGRAPHIE ========== */
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-display);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    margin-bottom: var(--spacing-md);
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+h4 {
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-md);
+}
+
+h5 {
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+h6 {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+p {
+    margin-bottom: var(--spacing-md);
+    line-height: var(--line-height-normal);
+}
+
+small {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+/* ========== LIENS ========== */
+
+a {
+    transition: color var(--transition-fast);
+    font-weight: var(--font-weight-medium);
+}
+
+a:visited {
+    color: inherit;
+}
+
+/* ========== LISTE ========== */
+
+ul, ol {
+    margin-bottom: var(--spacing-md);
+    padding-left: var(--spacing-lg);
+}
+
+li {
+    margin-bottom: var(--spacing-sm);
+}
+
+/* ========== CODE ========== */
+
+code {
+    background-color: var(--color-bg-tertiary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9em;
+    font-family: 'Courier New', monospace;
+}
+
+pre {
+    background-color: var(--color-bg-tertiary);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    overflow-x: auto;
+    margin-bottom: var(--spacing-md);
+}
+
+pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+/* ========== LAYOUT PRINCIPAL ========== */
+
+main {
+    min-height: calc(100vh - 120px);
+    padding: var(--spacing-lg) 0;
+}
+
+footer {
+    margin-top: auto;
+    padding: var(--spacing-xl) 0;
+}
+
+/* ========== CONTENEURS ========== */
+
+.container {
+    max-width: 1200px;
+    padding: 0 var(--spacing-md);
+}
+
+/* ========== GRILLE ========== */
+
+.row {
+    margin-bottom: var(--spacing-lg);
+}
+
+.col-md-6,
+.col-lg-4,
+.col-lg-3 {
+    margin-bottom: var(--spacing-lg);
+}
+
+/* ========== IMAGES ========== */
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ========== BOUTONS - SURCHARGES ========== */
+
+.btn {
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    transition: all var(--transition-fast);
+    border: none;
+    cursor: pointer;
+    font-size: var(--font-size-base);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Assurer que le texte des boutons est toujours lisible */
+.btn-primary,
+.btn-success,
+.btn-danger {
+    color: #ffffff !important;
+}
+
+.btn-sm {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+}
+
+.btn-lg {
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: var(--font-size-lg);
+}
+
+/* ========== CARTES - SURCHARGES ========== */
+
+.card {
+    overflow: hidden;
+}
+
+.card-img-top {
+    object-fit: cover;
+    height: 200px;
+}
+
+/* ========== FORMULAIRES - SURCHARGES ========== */
+
+.form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-control,
+.form-select {
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-regular);
+}
+
+.form-control::placeholder {
+    opacity: 1;
+}
+
+.form-label {
+    margin-bottom: var(--spacing-sm);
+    display: block;
+    font-weight: var(--font-weight-semibold);
+}
+
+.form-text {
+    font-size: var(--font-size-sm);
+    margin-top: var(--spacing-xs);
+}
+
+/* Amélioration de la visibilité des inputs textarea */
+textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* ========== TEXTE UTILITAIRE ========== */
+
+.text-center {
+    text-align: center;
+}
+
+.text-end {
+    text-align: right;
+}
+
+.text-start {
+    text-align: left;
+}
+
+/* ========== ESPACEMENT UTILITAIRE ========== */
+
+.mb-0 { margin-bottom: 0 !important; }
+.mb-1 { margin-bottom: var(--spacing-xs) !important; }
+.mb-2 { margin-bottom: var(--spacing-sm) !important; }
+.mb-3 { margin-bottom: var(--spacing-md) !important; }
+.mb-4 { margin-bottom: var(--spacing-lg) !important; }
+.mb-5 { margin-bottom: var(--spacing-xl) !important; }
+
+.mt-0 { margin-top: 0 !important; }
+.mt-1 { margin-top: var(--spacing-xs) !important; }
+.mt-2 { margin-top: var(--spacing-sm) !important; }
+.mt-3 { margin-top: var(--spacing-md) !important; }
+.mt-4 { margin-top: var(--spacing-lg) !important; }
+.mt-5 { margin-top: var(--spacing-xl) !important; }
+
+.p-0 { padding: 0 !important; }
+.p-1 { padding: var(--spacing-xs) !important; }
+.p-2 { padding: var(--spacing-sm) !important; }
+.p-3 { padding: var(--spacing-md) !important; }
+.p-4 { padding: var(--spacing-lg) !important; }
+.p-5 { padding: var(--spacing-xl) !important; }
+
+.px-3 { padding-left: var(--spacing-md) !important; padding-right: var(--spacing-md) !important; }
+.py-3 { padding-top: var(--spacing-md) !important; padding-bottom: var(--spacing-md) !important; }
+
+/* ========== AFFICHAGE UTILITAIRE ========== */
+
+.d-flex {
+    display: flex;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.gap-3 {
+    gap: var(--spacing-md);
+}
+
+/* ========== OPACITÉ ========== */
+
+.opacity-50 {
+    opacity: 0.5;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+
+/* ========== SURCHARGE BOOTSTRAP - TRANSITIONS ========== */
+
+.btn,
+.card,
+.nav-link,
+.form-control,
+.form-select,
+a {
+    transition: all var(--transition-base) !important;
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 768px) {
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+
+    main {
+        padding: var(--spacing-md) 0;
+    }
+
+    .container {
+        padding: 0 var(--spacing-sm);
+    }
+
+    .col-md-6,
+    .col-lg-4,
+    .col-lg-3 {
+        margin-bottom: var(--spacing-md);
+    }
+}
+
+@media (max-width: 576px) {
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1.1rem; }
+
+    .btn {
+        padding: var(--spacing-xs) var(--spacing-md);
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* ========== ANIMATIONS ========== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn var(--transition-base) ease-in-out;
+}
+
+/* ========== UTILITAIRES ADDITIONNELS ========== */
+
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ========== FIN DU FICHIER ========== */

@@ -45,7 +45,7 @@
         <div class="row" id="recipes-list">
             <?php foreach($mesCreations as $recette): ?>
                 <div class="col-md-4 mb-4 recipe-card">
-                    <div class="card h-100 shadow-sm border-primary">
+                    <div class="card h-100 shadow-sm">
                         <?php if(!empty($recette->image_url)): ?>
                             <img src="<?= $recette->image_url ?>" class="card-img-top" style="height: 180px; object-fit: cover;" alt="Photo recette">
                         <?php else: ?>
