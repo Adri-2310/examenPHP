@@ -41,7 +41,7 @@
             <?php foreach($favoris as $fav): ?>
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
-                        <img src="<?= $fav->image_url ?>" class="card-img-top" style="height: 200px; object-fit: cover;" alt="<?= htmlspecialchars($fav->titre) ?>">
+                        <img src="<?= $fav->image_url ?>" class="card-img-top" alt="<?= htmlspecialchars($fav->titre) ?>" loading="lazy">
                         
                         <div class="card-body">
                             <h5 class="card-title"><?= htmlspecialchars($fav->titre) ?></h5>

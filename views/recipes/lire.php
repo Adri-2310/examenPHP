@@ -50,7 +50,7 @@
 
         <!-- Image de la recette (si présente) -->
         <?php if(!empty($recette->image_url)): ?>
-            <img src="<?= $recette->image_url ?>" class="img-fluid w-100" style="max-height: 400px; object-fit: cover;" alt="Photo">
+            <img src="<?= $recette->image_url ?>" class="img-fluid w-100 recipe-detail-img" alt="Photo de la recette" loading="lazy">
         <?php endif; ?>
         
         <div class="card-body p-4">

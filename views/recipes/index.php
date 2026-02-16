@@ -47,9 +47,11 @@
                 <div class="col-md-4 mb-4 recipe-card">
                     <div class="card h-100 shadow-sm">
                         <?php if(!empty($recette->image_url)): ?>
-                            <img src="<?= $recette->image_url ?>" class="card-img-top" style="height: 180px; object-fit: cover;" alt="Photo recette">
+                            <img src="<?= $recette->image_url ?>" class="card-img-top" alt="Photo recette" loading="lazy">
                         <?php else: ?>
-                            <img src="https://via.placeholder.com/300x180?text=Miam" class="card-img-top" style="height: 180px; object-fit: cover;">
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="color: #999;">
+                                📷 Pas d'image
+                            </div>
                         <?php endif; ?>
                         <div class="card-body">
                             <h5 class="card-title recipe-title"><?= htmlspecialchars($recette->title) ?></h5>

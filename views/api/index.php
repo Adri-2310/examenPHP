@@ -85,7 +85,7 @@
                     // 2. ON UTILISE LA VARIABLE JS ${csrfToken} (plus de PHP ici !)
                     col.innerHTML = `
                         <div class="card h-100 shadow-sm">
-                            <img src="${meal.strMealThumb}" class="card-img-top" alt="${meal.strMeal}" style="height: 200px; object-fit: cover;">
+                            <img src="${meal.strMealThumb}" class="card-img-top" alt="${meal.strMeal}" loading="lazy">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">${escapeHtml(meal.strMeal)}</h5>
                                 <span class="badge bg-info mb-2 align-self-start">${escapeHtml(meal.strCategory)}</span>

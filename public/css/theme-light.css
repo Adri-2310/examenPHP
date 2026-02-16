@@ -148,7 +148,6 @@ body[data-theme="light"] #theme-toggle {
 body[data-theme="light"] #theme-toggle:hover {
     background-color: var(--color-bg-tertiary);
     color: var(--color-text-primary);
-    transform: rotate(180deg);
 }
 
 /* CARDS */
@@ -456,7 +455,6 @@ body[data-theme="light"] a {
 
 body[data-theme="light"] a:hover {
     color: #0b5ed7;
-    text-decoration: underline;
 }
 
 /* SELECTEURS */

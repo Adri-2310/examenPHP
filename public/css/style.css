@@ -33,7 +33,7 @@ body {
     font-size: var(--font-size-base);
     line-height: var(--line-height-normal);
     font-weight: var(--font-weight-regular);
-    transition: background-color var(--transition-base), color var(--transition-base);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Fallback pour les navigateurs sans CSS variables */
@@ -239,17 +239,60 @@ header {
 
 /* Bouton de toggle thème */
 #theme-toggle {
-    transition: all var(--transition-fast);
+    transition: all 0.3s ease !important;
     border-radius: 50%;
-}
-
-#theme-toggle:hover {
-    transform: rotate(180deg);
+    background-color: transparent;
 }
 
 #theme-icon {
     display: inline-block;
     transition: all var(--transition-base);
+}
+
+/* ========== IMAGES & LAZY LOADING ========== */
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Images dans les cartes */
+.card-img-top {
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    transition: all var(--transition-base);
+    filter: brightness(1);
+}
+
+/* Hauteur spécifique pour différentes cartes */
+.recipe-card .card-img-top {
+    aspect-ratio: 4 / 3;
+}
+
+.card:hover .card-img-top {
+    filter: brightness(1.1) scale(1.02);
+    transform: scale(1.02);
+}
+
+/* Image détail recette */
+.recipe-detail-img {
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: var(--border-radius-lg);
+    animation: fadeIn 0.5s ease-in;
+}
+
+/* Placeholder pour images en chargement */
+img[loading="lazy"] {
+    background-color: var(--color-bg-tertiary);
+}
+
+/* Placeholder quand pas d'image */
+.card-img-top.bg-light {
+    aspect-ratio: 16 / 9;
+    font-size: 2rem;
 }
 
 /* ========== LAYOUT PRINCIPAL ========== */
