@@ -3,8 +3,19 @@
  *
  * Valide les formulaires en temps réel (login, register).
  * Fournit un feedback visuel instantané (couleurs verte/rouge) pendant que l'utilisateur tape.
+ *
+ * @class FormValidator
+ * @example
+ * // Utilisation dans main.js
+ * const forms = document.querySelectorAll('form');
+ * new FormValidator(forms);
  */
 class FormValidator {
+    /**
+     * Initialise la validation pour tous les formulaires
+     * @constructor
+     * @param {NodeList} forms - Liste des formulaires à valider
+     */
     constructor(forms) {
         // Sélectionner tous les inputs dans les formulaires
         this.forms = forms;
@@ -29,6 +40,13 @@ class FormValidator {
         });
     }
 
+    /**
+     * Valide un champ de formulaire en fonction de son type
+     * Applique les classes Bootstrap is-valid/is-invalid
+     *
+     * @param {HTMLElement} input - L'élément input ou textarea à valider
+     * @returns {boolean} true si le champ est valide, false sinon
+     */
     validateField(input) {
         // Vérifier si le champ est vide
         const isEmpty = input.value.trim() === '';
@@ -80,6 +98,14 @@ class FormValidator {
         return isValid;
     }
 
+    /**
+     * Vérifie de manière asynchrone si le nom d'utilisateur existe déjà
+     * Appelle le serveur pour valider l'unicité du nom
+     *
+     * @async
+     * @param {HTMLElement} input - L'input du nom à vérifier
+     * @returns {Promise<void>}
+     */
     checkNomAsynchrone(input) {
         // Vérifier le nom via AJAX avec le serveur
         const nom = input.value.trim();
@@ -116,6 +142,14 @@ class FormValidator {
         });
     }
 
+    /**
+     * Affiche le message d'erreur sous un champ
+     * Utilise la classe Bootstrap invalid-feedback
+     *
+     * @param {HTMLElement} input - L'input concerné
+     * @param {string|null} customMessage - Message d'erreur personnalisé (optionnel)
+     * @returns {void}
+     */
     showErrorMessage(input, customMessage = null) {
         // Afficher le message d'erreur sous le champ
         const errorDiv = input.nextElementSibling;
@@ -128,6 +162,12 @@ class FormValidator {
         }
     }
 
+    /**
+     * Masque le message d'erreur sous un champ
+     *
+     * @param {HTMLElement} input - L'input concerné
+     * @returns {void}
+     */
     hideErrorMessage(input) {
         // Masquer le message d'erreur sous le champ
         const errorDiv = input.nextElementSibling;
@@ -136,6 +176,14 @@ class FormValidator {
         }
     }
 
+    /**
+     * Empêche l'envoi du formulaire s'il y a des erreurs de validation
+     * Affiche une notification d'erreur si validations échouent
+     *
+     * @param {Event} e - Événement du submit du formulaire
+     * @param {HTMLElement} form - Le formulaire à valider
+     * @returns {void}
+     */
     preventInvalidSubmit(e, form) {
         // Vérifier si tous les champs sont valides (inputs ET textareas)
         const inputs = form.querySelectorAll('input[required], textarea[required]');

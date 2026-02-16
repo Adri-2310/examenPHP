@@ -3,8 +3,18 @@
  *
  * Gère l'ajout/suppression dynamique des ingrédients dans le formulaire de création de recettes.
  * Permet aux utilisateurs d'ajouter autant d'ingrédients que nécessaire sans rechargement de page.
+ *
+ * @class IngredientManager
+ * @example
+ * // Utilisation dans main.js
+ * new IngredientManager();
  */
 class IngredientManager {
+    /**
+     * Initialise le gestionnaire d'ingrédients
+     * Récupère les éléments du DOM et ajoute les écouteurs d'événements
+     * @constructor
+     */
     constructor() {
         // Récupérer les éléments du DOM
         this.addBtn = document.getElementById('add-ingredient-btn');
@@ -25,6 +35,12 @@ class IngredientManager {
         this.populateExistingIngredients();
     }
 
+    /**
+     * Pré-remplit les ingrédients existants (pour la modification de recettes)
+     * Parse le JSON stocké en attribut data-ingredients et crée les inputs correspondants
+     *
+     * @returns {void}
+     */
     populateExistingIngredients() {
         // Récupérer les ingrédients stockés en attribut data-ingredients
         const dataIngredients = this.wrapper.getAttribute('data-ingredients');
@@ -53,6 +69,14 @@ class IngredientManager {
         }
     }
 
+    /**
+     * Ajoute dynamiquement une ligne d'ingrédient au formulaire
+     * Crée les champs nom et quantité + bouton de suppression
+     *
+     * @param {string} name - Nom de l'ingrédient (valeur initiale, optionnel)
+     * @param {string} qty - Quantité de l'ingrédient (valeur initiale, optionnel)
+     * @returns {void}
+     */
     addInput(name = '', qty = '') {
         // Créer une div wrapper pour la ligne d'ingrédient
         const div = document.createElement('div');

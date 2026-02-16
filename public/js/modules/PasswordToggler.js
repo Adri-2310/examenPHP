@@ -3,8 +3,19 @@
  *
  * Gère l'affichage/masquage du mot de passe dans les formulaires.
  * Permet aux utilisateurs de vérifier leur mot de passe avant de soumettre.
+ * Crée des styles CSS dynamiquement et ajoute des boutons toggle à chaque input password.
+ *
+ * @class PasswordToggler
+ * @example
+ * // Utilisation dans main.js
+ * new PasswordToggler();
  */
 class PasswordToggler {
+    /**
+     * Initialise le gestionnaire de visibilité des mots de passe
+     * Ajoute les styles CSS et crée les boutons toggle pour chaque input password
+     * @constructor
+     */
     constructor() {
         // Ajouter du CSS au document
         this.addStyles();
@@ -26,6 +37,12 @@ class PasswordToggler {
         });
     }
 
+    /**
+     * Ajoute les styles CSS pour le wrapper et bouton toggle
+     * Crée une balise <style> et l'injecte dans le <head> du document
+     *
+     * @returns {void}
+     */
     addStyles() {
         // Créer une balise <style> et l'ajouter au document
         const style = document.createElement('style');
@@ -60,6 +77,13 @@ class PasswordToggler {
         document.head.appendChild(style);
     }
 
+    /**
+     * Crée et insère le bouton toggle pour un input password
+     * Enveloppe l'input dans un wrapper et ajoute le bouton avec les styles appropriés
+     *
+     * @param {HTMLElement} passwordInput - L'input password concerné
+     * @returns {void}
+     */
     createToggleButton(passwordInput) {
         // Créer le bouton de toggle
         const toggleBtn = document.createElement('button');
@@ -88,6 +112,14 @@ class PasswordToggler {
         wrapper.appendChild(toggleBtn);
     }
 
+    /**
+     * Bascule la visibilité du mot de passe (change input type entre password et text)
+     * Met à jour l'icône du bouton en conséquence (👁️ ou 🙈)
+     *
+     * @param {HTMLElement} passwordInput - L'input password à basculer
+     * @param {HTMLElement} toggleBtn - Le bouton toggle
+     * @returns {void}
+     */
     togglePassword(passwordInput, toggleBtn) {
         // Basculer entre password et text
         if (passwordInput.type === 'password') {

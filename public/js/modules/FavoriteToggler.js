@@ -4,8 +4,17 @@
  * Gère l'ajout/suppression aux favoris via AJAX (Fetch).
  * Permet de basculer les favoris sans rechargement de page.
  * Notifications Toastify pour le feedback utilisateur.
+ *
+ * @class FavoriteToggler
+ * @example
+ * // Utilisation dans main.js
+ * new FavoriteToggler();
  */
 class FavoriteToggler {
+    /**
+     * Initialise les écouteurs d'événements pour les boutons favoris
+     * @constructor
+     */
     constructor() {
         // Gérer les boutons d'ajout de favoris (.btn-toggle-fav)
         this.addFavoriteButtons = document.querySelectorAll('.btn-toggle-fav');
@@ -20,6 +29,14 @@ class FavoriteToggler {
         });
     }
 
+    /**
+     * Gère l'ajout/suppression d'une recette aux favoris (toggle)
+     * Effectue une requête AJAX et met à jour le bouton + affiche une notification
+     *
+     * @async
+     * @param {Event} e - Événement du clic sur le bouton
+     * @returns {Promise<void>}
+     */
     async handleAddFavorite(e) {
         e.preventDefault();
         const button = e.target.closest('.btn-toggle-fav');
@@ -81,6 +98,14 @@ class FavoriteToggler {
         }
     }
 
+    /**
+     * Supprime une recette des favoris avec confirmation
+     * Effectue une requête AJAX et retire la card du DOM avec animation
+     *
+     * @async
+     * @param {Event} e - Événement du clic sur le bouton de suppression
+     * @returns {Promise<void>}
+     */
     async handleDeleteFavorite(e) {
         e.preventDefault();
         const button = e.target.closest('.btn-delete-fav');
