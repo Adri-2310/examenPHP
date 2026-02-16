@@ -51,17 +51,22 @@
     <div class="mb-5">
         <h2 class="border-bottom pb-2 mb-4">❤️ Mes Coups de Cœur</h2>
         <div class="row">
-            <?php foreach($favoris as $fav): ?>
+            <?php
+                // Limiter à max 6 recettes et afficher de manière aléatoire
+                $favorisAffichage = array_slice($favoris, 0, 6);
+                shuffle($favorisAffichage);
+            ?>
+            <?php foreach($favorisAffichage as $fav): ?>
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
                         <img src="<?= $fav->image_url ?>" class="card-img-top" alt="<?= htmlspecialchars($fav->titre) ?>" loading="lazy">
-                        
+
                         <div class="card-body">
                             <h5 class="card-title"><?= htmlspecialchars($fav->titre) ?></h5>
-                            
+
                             <div class="d-flex justify-content-between mt-3">
                                 <a href="/favorites" class="btn btn-sm btn-outline-secondary">Gérer</a>
-                                <a href="https://www.themealdb.com/meal/<?= $fav->id_api ?>" target="_blank" class="btn btn-sm btn-link">Voir la recette ↗</a>
+                                <a href="/api/lireRecette/<?= $fav->id_api ?>" class="btn btn-sm btn-link">Voir la recette</a>
                             </div>
                         </div>
                     </div>

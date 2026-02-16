@@ -48,7 +48,7 @@
                         </div>
                         
                         <div class="card-footer bg-transparent d-flex justify-content-between">
-                            <a href="https://www.themealdb.com/meal/<?= $fav->id_api ?>" target="_blank" class="btn btn-sm btn-info text-white">Voir la recette ↗</a>
+                            <a href="/api/lireRecette/<?= $fav->id_api ?>" class="btn btn-sm btn-info text-white">Voir la recette</a>
 
                             <!-- Bouton suppression AJAX -->
                             <button type="button" class="btn-delete-fav btn btn-sm btn-danger"
