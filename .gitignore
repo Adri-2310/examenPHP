@@ -8,3 +8,10 @@ public/uploads/
 .env
 .env.local
 .env.*.php
+
+# Logs
+/logs/*.log
+/logs/*.log.gz
+/logs/*/*.log
+/logs/*/*.log.gz
+/logs/.rotation
