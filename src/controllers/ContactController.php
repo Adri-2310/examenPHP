@@ -9,7 +9,7 @@
  * Fonctionnalités principales :
  * - Affichage du formulaire de contact
  * - Validation des données
- * - Message de confirmationñ
+ * - Message de confirmation
  *
  * Sécurité :
  * - Vérification du token CSRF
