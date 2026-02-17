@@ -24,6 +24,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\ErrorHandler;
 
 class ContactController extends Controller
 {
@@ -41,6 +42,7 @@ class ContactController extends Controller
         if (!empty($_POST)) {
             // Validation CSRF
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                ErrorHandler::logAccessDenied('contact/contact', 'Token CSRF invalide');
                 die("Erreur de sécurité : Token CSRF invalide");
             }
 
@@ -50,6 +52,11 @@ class ContactController extends Controller
 
                 // Validation de l'email
                 if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+                    ErrorHandler::logValidationError(
+                        'email',
+                        'Format email invalide dans contact: ' . $_POST['email'],
+                        '❌ Adresse email invalide'
+                    );
                     $erreur = "Adresse email invalide";
                 } else {
                     // Nettoyage des données
@@ -57,18 +64,31 @@ class ContactController extends Controller
                     $email = strip_tags($_POST['email']);
                     $sujet = strip_tags($_POST['sujet']);
                     $message = strip_tags($_POST['message']);
-                    
+
+                    // Log la soumission du message de contact
+                    ErrorHandler::log(
+                        "Message de contact reçu de {$email} (sujet: {$sujet})",
+                        ErrorHandler::TYPE_INFO,
+                        null,
+                        ['action' => 'contact/contact', 'method' => 'submit', 'email' => $email]
+                    );
+
                     // Toast de succès
                     $_SESSION['toasts'][] = [
                         'type' => 'success',
-                        'message' => 'Merci ' . htmlspecialchars($nom) . ' ! Votre message a été envoyé avec succès ! Nous vous répondrons rapidement.'
+                        'message' => '✅ Merci ' . htmlspecialchars($nom) . ' ! Votre message a été envoyé avec succès ! Nous vous répondrons rapidement.'
                     ];
-                    
+
                     // Redirection
                     header('Location: /contact/contact');
                     exit;
                 }
             } else {
+                ErrorHandler::logValidationError(
+                    'form',
+                    'Formulaire contact incomplet',
+                    '❌ Veuillez remplir tous les champs obligatoires'
+                );
                 $erreur = "Veuillez remplir tous les champs obligatoires.";
             }
         }

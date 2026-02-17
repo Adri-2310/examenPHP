@@ -22,6 +22,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\ErrorHandler;
 
 class ApiController extends Controller
 {
@@ -70,6 +71,13 @@ class ApiController extends Controller
      */
     public function lireRecette($id_api)
     {
+        // Validation de l'ID API (doit être numérique)
+        if (!is_numeric($id_api) || $id_api <= 0) {
+            ErrorHandler::logValidationError('id_api', 'ID API invalide (non numérique)', '❌ Recette non trouvée');
+            header('Location: /favorites');
+            exit;
+        }
+
         // ═══════════════════════════════════════════════════════════════
         // 1. VÉRIFIER LE CACHE EN SESSION (30 minutes)
         // ═══════════════════════════════════════════════════════════════
@@ -82,7 +90,12 @@ class ApiController extends Controller
 
             // Les données sont en cache et encore valides
             $recette = $_SESSION[$cacheKey]['data'];
-            error_log("Cache HIT pour recette API {$id_api}");
+            ErrorHandler::log(
+                "Cache HIT pour recette API {$id_api}",
+                ErrorHandler::TYPE_INFO,
+                null,
+                ['action' => 'api/lireRecette', 'method' => 'cache_hit']
+            );
 
         } else {
 
@@ -90,125 +103,125 @@ class ApiController extends Controller
             // 2. APPEL À L'API THEMEALDB
             // ═══════════════════════════════════════════════════════════════
 
-            $url = "https://www.themealdb.com/api/json/v1/1/lookup.php?i={$id_api}";
+            try {
+                $url = "https://www.themealdb.com/api/json/v1/1/lookup.php?i={$id_api}";
 
-            // Configuration du context avec timeout (5 secondes max)
-            $context = stream_context_create([
-                'http' => [
-                    'timeout' => 5,
-                    'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                ]
-            ]);
+                // Configuration du context avec timeout (5 secondes max)
+                $context = stream_context_create([
+                    'http' => [
+                        'timeout' => 5,
+                        'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    ]
+                ]);
 
-            // Appel API
-            $response = @file_get_contents($url, false, $context);
+                // Appel API - SANS le suppresseur @ (for proper error handling)
+                $response = file_get_contents($url, false, $context);
 
-            // Gestion des erreurs de connexion
-            if ($response === false) {
-                error_log("API ERROR: Impossible de contacter TheMealDB pour id_api={$id_api}");
-
-                $_SESSION['toasts'][] = [
-                    'type' => 'error',
-                    'message' => 'Service TheMealDB temporairement indisponible. Réessayez plus tard.'
-                ];
-
-                header('Location: /favorites');
-                exit;
-            }
-
-            // ═══════════════════════════════════════════════════════════════
-            // 3. PARSING JSON ET VALIDATION
-            // ═══════════════════════════════════════════════════════════════
-
-            $data = json_decode($response, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                error_log("API JSON ERROR: " . json_last_error_msg());
-
-                $_SESSION['toasts'][] = [
-                    'type' => 'error',
-                    'message' => 'Erreur lors du traitement des données API.'
-                ];
-
-                header('Location: /favorites');
-                exit;
-            }
-
-            // Vérifier que la recette existe
-            if (!$data || !isset($data['meals']) || empty($data['meals'])) {
-                error_log("API: Recette id_api={$id_api} non trouvée sur TheMealDB");
-
-                $_SESSION['toasts'][] = [
-                    'type' => 'warning',
-                    'message' => 'Cette recette n\'existe plus sur TheMealDB.'
-                ];
-
-                header('Location: /favorites');
-                exit;
-            }
-
-            $meal = $data['meals'][0];
-
-            // ═══════════════════════════════════════════════════════════════
-            // 4. TRANSFORMATION DES INGRÉDIENTS
-            // ═══════════════════════════════════════════════════════════════
-            // Format API: strIngredient1, strMeasure1, strIngredient2, strMeasure2, ...
-            // Format local: [{"name": "Tomate", "qty": "500g"}, ...]
-
-            $ingredients = [];
-
-            for ($i = 1; $i <= 20; $i++) {
-                // Récupérer l'ingrédient et la mesure
-                $ingredientKey = "strIngredient{$i}";
-                $measureKey = "strMeasure{$i}";
-
-                $ingredient = trim($meal[$ingredientKey] ?? '');
-                $measure = trim($meal[$measureKey] ?? '');
-
-                // Si l'ingrédient n'est pas vide, l'ajouter
-                if (!empty($ingredient)) {
-                    $ingredients[] = [
-                        'name' => htmlspecialchars($ingredient, ENT_QUOTES, 'UTF-8'),
-                        'qty' => htmlspecialchars($measure, ENT_QUOTES, 'UTF-8')
-                    ];
+                // Gestion des erreurs de connexion
+                if ($response === false) {
+                    throw new \Exception("Impossible de contacter TheMealDB (timeout ou connexion refusée)");
                 }
+
+                // ═══════════════════════════════════════════════════════════════
+                // 3. PARSING JSON ET VALIDATION
+                // ═══════════════════════════════════════════════════════════════
+
+                $data = json_decode($response, true);
+
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new \Exception("JSON invalide retourné: " . json_last_error_msg());
+                }
+
+                // Vérifier que la recette existe
+                if (!$data || !isset($data['meals']) || empty($data['meals'])) {
+                    throw new \Exception("Recette non trouvée (id_api: {$id_api})");
+                }
+
+                $meal = $data['meals'][0];
+
+                // ═══════════════════════════════════════════════════════════════
+                // 4. TRANSFORMATION DES INGRÉDIENTS
+                // ═══════════════════════════════════════════════════════════════
+                // Format API: strIngredient1, strMeasure1, strIngredient2, strMeasure2, ...
+                // Format local: [{"name": "Tomate", "qty": "500g"}, ...]
+
+                $ingredients = [];
+
+                for ($i = 1; $i <= 20; $i++) {
+                    // Récupérer l'ingrédient et la mesure
+                    $ingredientKey = "strIngredient{$i}";
+                    $measureKey = "strMeasure{$i}";
+
+                    $ingredient = trim($meal[$ingredientKey] ?? '');
+                    $measure = trim($meal[$measureKey] ?? '');
+
+                    // Si l'ingrédient n'est pas vide, l'ajouter
+                    if (!empty($ingredient)) {
+                        $ingredients[] = [
+                            'name' => htmlspecialchars($ingredient, ENT_QUOTES, 'UTF-8'),
+                            'qty' => htmlspecialchars($measure, ENT_QUOTES, 'UTF-8')
+                        ];
+                    }
+                }
+
+                // ═══════════════════════════════════════════════════════════════
+                // 5. CRÉER L'OBJET RECETTE UNIFIÉ
+                // ═══════════════════════════════════════════════════════════════
+
+                $recette = (object) [
+                    // Données de base
+                    'id_api' => htmlspecialchars($meal['idMeal'] ?? '', ENT_QUOTES, 'UTF-8'),
+                    'title' => htmlspecialchars($meal['strMeal'] ?? '', ENT_QUOTES, 'UTF-8'),
+                    'category' => htmlspecialchars($meal['strCategory'] ?? 'Non catégorisée', ENT_QUOTES, 'UTF-8'),
+                    'area' => htmlspecialchars($meal['strArea'] ?? 'Origine inconnue', ENT_QUOTES, 'UTF-8'),
+
+                    // Contenu
+                    'ingredients' => json_encode($ingredients), // JSON pour compatibilité lire.php
+                    'instructions' => htmlspecialchars($meal['strInstructions'] ?? '', ENT_QUOTES, 'UTF-8'),
+                    'image_url' => htmlspecialchars($meal['strMealThumb'] ?? '', ENT_QUOTES, 'UTF-8'),
+
+                    // Données supplémentaires
+                    'source_url' => htmlspecialchars($meal['strSource'] ?? '', ENT_QUOTES, 'UTF-8'),
+                    'tags' => htmlspecialchars($meal['strTags'] ?? '', ENT_QUOTES, 'UTF-8'),
+
+                    // Métadonnées
+                    'type' => 'api', // Marqueur pour distinguer recettes locales
+                    'created_at' => date('Y-m-d H:i:s') // Date de consultation
+                ];
+
+                // ═══════════════════════════════════════════════════════════════
+                // 6. MISE EN CACHE (30 MINUTES)
+                // ═══════════════════════════════════════════════════════════════
+
+                $_SESSION[$cacheKey] = [
+                    'data' => $recette,
+                    'timestamp' => time()
+                ];
+
+                // Log le succès
+                ErrorHandler::log(
+                    "Recette API chargée et mise en cache: {$recette->title} (ID: {$id_api})",
+                    ErrorHandler::TYPE_INFO,
+                    null,
+                    ['action' => 'api/lireRecette', 'method' => 'cache_miss_then_hit']
+                );
+
+            } catch (\Exception $e) {
+                // Erreur lors de l'appel ou du parsing API
+                ErrorHandler::logApiError($e, 'TheMealDB', [
+                    'action' => 'api/lireRecette',
+                    'id_api' => $id_api,
+                    'url' => $url ?? 'N/A'
+                ]);
+
+                $_SESSION['toasts'][] = [
+                    'type' => 'error',
+                    'message' => '❌ Service TheMealDB temporairement indisponible. Réessayez plus tard.'
+                ];
+
+                header('Location: /favorites');
+                exit;
             }
-
-            // ═══════════════════════════════════════════════════════════════
-            // 5. CRÉER L'OBJET RECETTE UNIFIÉ
-            // ═══════════════════════════════════════════════════════════════
-
-            $recette = (object) [
-                // Données de base
-                'id_api' => htmlspecialchars($meal['idMeal'] ?? '', ENT_QUOTES, 'UTF-8'),
-                'title' => htmlspecialchars($meal['strMeal'] ?? '', ENT_QUOTES, 'UTF-8'),
-                'category' => htmlspecialchars($meal['strCategory'] ?? 'Non catégorisée', ENT_QUOTES, 'UTF-8'),
-                'area' => htmlspecialchars($meal['strArea'] ?? 'Origine inconnue', ENT_QUOTES, 'UTF-8'),
-
-                // Contenu
-                'ingredients' => json_encode($ingredients), // JSON pour compatibilité lire.php
-                'instructions' => htmlspecialchars($meal['strInstructions'] ?? '', ENT_QUOTES, 'UTF-8'),
-                'image_url' => htmlspecialchars($meal['strMealThumb'] ?? '', ENT_QUOTES, 'UTF-8'),
-
-                // Données supplémentaires
-                'source_url' => htmlspecialchars($meal['strSource'] ?? '', ENT_QUOTES, 'UTF-8'),
-                'tags' => htmlspecialchars($meal['strTags'] ?? '', ENT_QUOTES, 'UTF-8'),
-
-                // Métadonnées
-                'type' => 'api', // Marqueur pour distinguer recettes locales
-                'created_at' => date('Y-m-d H:i:s') // Date de consultation
-            ];
-
-            // ═══════════════════════════════════════════════════════════════
-            // 6. MISE EN CACHE (30 MINUTES)
-            // ═══════════════════════════════════════════════════════════════
-
-            $_SESSION[$cacheKey] = [
-                'data' => $recette,
-                'timestamp' => time()
-            ];
-
-            error_log("Cache MISS + HIT créé pour recette API {$id_api}");
         }
 
         // ═══════════════════════════════════════════════════════════════

@@ -25,6 +25,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\ErrorHandler;
 use App\Models\UsersModel;
 
 class UsersController extends Controller
@@ -113,52 +114,78 @@ class UsersController extends Controller
                 
                 // Validation de l'email avec un format strict
                 if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+                    ErrorHandler::logValidationError('email', 'Format email invalide', '❌ Email invalide');
                     $erreur = "Email invalide";
                 } else {
-                    // 1. Recherche de l'utilisateur dans la base de données
-                    $userModel = new UsersModel();
-                    $user = $userModel->findOneByEmail($_POST['email']);
+                    try {
+                        // 1. Recherche de l'utilisateur dans la base de données
+                        $userModel = new UsersModel();
+                        $user = $userModel->findOneByEmail($_POST['email']);
 
-                    // 2. Vérification du mot de passe
-                    // password_verify() compare le mot de passe en clair avec le hash stocké
-                    if ($user && password_verify($_POST['password'], $user->password)) {
-                        session_regenerate_id(true);
+                        // 2. Vérification du mot de passe
+                        // password_verify() compare le mot de passe en clair avec le hash stocké
+                        if ($user && password_verify($_POST['password'], $user->password)) {
+                            session_regenerate_id(true);
 
-                        // 3. Création de la session utilisateur
-                        $_SESSION['user'] = [
-                            'id' => $user->id,
-                            'email' => $user->email,
-                            'nom' => $user->nom,
-                            'roles' => $user->role
-                        ];
-
-                        // 4. Notification de succès
-                        $_SESSION['toasts'][] = [
-                            'type' => 'success',
-                            'message' => 'Bienvenue ' . $user->nom . ' ! Connexion réussie.'
-                        ];
-
-                        // Login réussi : réinitialiser les tentatives
-                        unset($_SESSION['login_attempts'][$ip]);
-
-                        // 5. Redirection vers la page d'accueil
-                        header('Location: /');
-                        exit;
-                    } else {
-                        // Mot de passe incorrect
-
-                        // ===== ENREGISTRER TENTATIVE ÉCHOUÉE =====
-                        if (!isset($_SESSION['login_attempts'][$ip])) {
-                            $_SESSION['login_attempts'][$ip] = [
-                                'count' => 1,
-                                'time' => time()
+                            // 3. Création de la session utilisateur
+                            $_SESSION['user'] = [
+                                'id' => $user->id,
+                                'email' => $user->email,
+                                'nom' => $user->nom,
+                                'roles' => $user->role
                             ];
-                        } else {
-                            $_SESSION['login_attempts'][$ip]['count']++;
-                        }
-                        // ===== FIN =====
 
-                        $erreur = "Identifiants incorrects";
+                            // 4. Notification de succès
+                            $_SESSION['toasts'][] = [
+                                'type' => 'success',
+                                'message' => '✅ Bienvenue ' . htmlspecialchars($user->nom) . ' ! Connexion réussie.'
+                            ];
+
+                            // Login réussi : réinitialiser les tentatives
+                            unset($_SESSION['login_attempts'][$ip]);
+
+                            // Log la connexion réussie
+                            ErrorHandler::log(
+                                "Connexion réussie pour " . $user->email,
+                                ErrorHandler::TYPE_INFO,
+                                null,
+                                ['action' => 'users/login', 'method' => 'success']
+                            );
+
+                            // 5. Redirection vers la page d'accueil
+                            header('Location: /');
+                            exit;
+                        } else {
+                            // Mot de passe incorrect ou utilisateur non trouvé
+
+                            // ===== ENREGISTRER TENTATIVE ÉCHOUÉE =====
+                            if (!isset($_SESSION['login_attempts'][$ip])) {
+                                $_SESSION['login_attempts'][$ip] = [
+                                    'count' => 1,
+                                    'time' => time()
+                                ];
+                            } else {
+                                $_SESSION['login_attempts'][$ip]['count']++;
+                            }
+                            // ===== FIN =====
+
+                            // Log la tentative échouée (avec l'email, mais pas le mot de passe)
+                            ErrorHandler::logValidationError(
+                                'credentials',
+                                'Email ou mot de passe incorrect (IP: ' . $ip . ')',
+                                '❌ Identifiants incorrects'
+                            );
+
+                            $erreur = "Identifiants incorrects";
+                        }
+                    } catch (\PDOException $e) {
+                        // Erreur lors de la recherche en BD
+                        ErrorHandler::logDatabaseError($e, 'recherche utilisateur par email', [
+                            'action' => 'users/login',
+                            'method' => 'findOneByEmail'
+                        ]);
+
+                        $erreur = "❌ Erreur lors de la connexion. Veuillez réessayer.";
                     }
                 }
             }
@@ -239,37 +266,69 @@ class UsersController extends Controller
 
                 // 2. Validation de l'email et du mot de passe
                 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    ErrorHandler::logValidationError('email', 'Format email invalide lors de register', '❌ Email invalide');
                     $erreur = "Email invalide";
                 } elseif (strlen($password) < 8) {
+                    ErrorHandler::logValidationError('password', 'Mot de passe trop court (< 8 caractères)', '❌ Le mot de passe doit contenir au moins 8 caractères');
                     $erreur = "Le mot de passe doit contenir au moins 8 caractères";
                 } else {
-                    // 3. Vérification d'unicité de l'email
-                    $userModel = new UsersModel();
-                    $existingUser = $userModel->findOneByEmail($email);
+                    try {
+                        // 3. Vérification d'unicité de l'email
+                        $userModel = new UsersModel();
+                        $existingUser = $userModel->findOneByEmail($email);
 
-                    if ($existingUser) {
-                        $erreur = "Cet email est déjà utilisé";
-                    } else {
-                        // 4. Hashing du mot de passe avec l'algorithme le plus sécurisé
-                        // PASSWORD_ARGON2ID : Standard recommandé en 2026
-                        // Avantages : Résistant aux attaques GPU, mémoire-intensive
-                        $hash = password_hash($password, PASSWORD_ARGON2ID);
+                        if ($existingUser) {
+                            ErrorHandler::logValidationError('email', 'Email déjà utilisé: ' . $email, '❌ Cet email est déjà utilisé');
+                            $erreur = "Cet email est déjà utilisé";
+                        } else {
+                            // 4. Hashing du mot de passe avec l'algorithme le plus sécurisé
+                            // PASSWORD_ARGON2ID : Standard recommandé en 2026
+                            // Avantages : Résistant aux attaques GPU, mémoire-intensive
+                            $hash = password_hash($password, PASSWORD_ARGON2ID);
 
-                        // 5. Enregistrement de l'utilisateur
-                        $userModel->createUser($email, $hash, $nom);
+                            // 5. Enregistrement de l'utilisateur
+                            try {
+                                $userModel->createUser($email, $hash, $nom);
 
-                        // 6. Notification de succès d'inscription
-                        $_SESSION['toasts'][] = [
-                            'type' => 'success',
-                            'message' => 'Inscription réussie ! Vous pouvez maintenant vous connecter avec votre email.'
-                        ];
+                                // 6. Notification de succès d'inscription
+                                $_SESSION['toasts'][] = [
+                                    'type' => 'success',
+                                    'message' => '✅ Inscription réussie ! Vous pouvez maintenant vous connecter avec votre email.'
+                                ];
 
-                        // 7. Redirection vers la page de connexion
-                        header('Location: /users/login');
-                        exit;
+                                // Log l'inscription réussie
+                                ErrorHandler::log(
+                                    "Nouvel utilisateur inscrit: {$email}",
+                                    ErrorHandler::TYPE_INFO,
+                                    null,
+                                    ['action' => 'users/register', 'method' => 'createUser']
+                                );
+
+                                // 7. Redirection vers la page de connexion
+                                header('Location: /users/login');
+                                exit;
+                            } catch (\PDOException $e) {
+                                // Erreur lors de la création de l'utilisateur
+                                ErrorHandler::logDatabaseError($e, 'création utilisateur (email: ' . $email . ')', [
+                                    'action' => 'users/register',
+                                    'method' => 'createUser'
+                                ]);
+
+                                $erreur = "❌ Erreur lors de l'inscription. Veuillez réessayer.";
+                            }
+                        }
+                    } catch (\PDOException $e) {
+                        // Erreur lors de la vérification d'unicité
+                        ErrorHandler::logDatabaseError($e, 'vérification unicité email', [
+                            'action' => 'users/register',
+                            'method' => 'findOneByEmail'
+                        ]);
+
+                        $erreur = "❌ Erreur lors de la vérification. Veuillez réessayer.";
                     }
                 }
             } else {
+                ErrorHandler::logValidationError('form', 'Formulaire d\'inscription incomplet');
                 $erreur = "Le formulaire est incomplet";
             }
         }
@@ -295,6 +354,7 @@ class UsersController extends Controller
 
         // Vérifier que le nom est fourni
         if (!isset($_POST['nom']) || empty($_POST['nom'])) {
+            ErrorHandler::logValidationError('nom', 'Nom non fourni dans checkNom');
             echo json_encode([
                 'status' => 'error',
                 'exists' => false,
@@ -307,6 +367,7 @@ class UsersController extends Controller
 
         // Validation : le nom doit contenir au moins 3 caractères
         if (strlen($nom) < 3) {
+            ErrorHandler::logValidationError('nom', 'Nom trop court (< 3 caractères): ' . $nom);
             echo json_encode([
                 'status' => 'error',
                 'exists' => false,
@@ -315,22 +376,39 @@ class UsersController extends Controller
             exit;
         }
 
-        // Vérifier en base de données
-        $userModel = new UsersModel();
-        $sql = "SELECT id FROM users WHERE nom = ?";
-        $db = \App\Core\Db::getInstance();
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$nom]);
-        $user = $stmt->fetch();
+        try {
+            // Vérifier en base de données
+            $userModel = new UsersModel();
+            $sql = "SELECT id FROM users WHERE nom = ?";
+            $db = \App\Core\Db::getInstance();
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$nom]);
+            $user = $stmt->fetch();
 
-        $exists = $user !== false;
+            $exists = $user !== false;
 
-        // Répondre en JSON
-        echo json_encode([
-            'status' => 'success',
-            'exists' => $exists,
-            'message' => $exists ? 'Ce nom est déjà utilisé' : 'Nom disponible'
-        ]);
-        exit;
+            // Répondre en JSON
+            echo json_encode([
+                'status' => 'success',
+                'exists' => $exists,
+                'message' => $exists ? 'Ce nom est déjà utilisé' : 'Nom disponible'
+            ]);
+            exit;
+        } catch (\PDOException $e) {
+            // Erreur BD - répondre avec un code d'erreur JSON
+            ErrorHandler::logDatabaseError($e, 'vérification unicité nom (nom: ' . $nom . ')', [
+                'action' => 'users/checkNom',
+                'method' => 'SELECT'
+            ]);
+
+            // Répondre avec un statut d'erreur (sans exposer détails technique)
+            http_response_code(500);
+            echo json_encode([
+                'status' => 'error',
+                'exists' => false,
+                'message' => 'Erreur serveur - Veuillez réessayer'
+            ]);
+            exit;
+        }
     }
 }
