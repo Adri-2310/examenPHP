@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS recipes (
     instructions TEXT,
     user_id INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    note TEXT NULL,
     image_url VARCHAR(255) NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
@@ -33,7 +32,6 @@ CREATE TABLE IF NOT EXISTS favorites (
     id_api VARCHAR(50) NOT NULL, -- ID provenant de l'API externe
     titre VARCHAR(255) NOT NULL,
     image_url VARCHAR(255),
-    note TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;

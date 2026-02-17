@@ -41,9 +41,6 @@ class FavoritesModel extends Model
     /** @var string URL de l'image de la recette */
     protected $image_url;
 
-    /** @var string Note personnelle de l'utilisateur (optionnelle) */
-    protected $note;
-
     /**
      * Constructeur - Définit le nom de la table
      */
