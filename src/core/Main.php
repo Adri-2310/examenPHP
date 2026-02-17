@@ -78,8 +78,11 @@ class Main
             if (!isset($_POST['csrf_token']) ||
                 !isset($_SESSION['csrf_token']) ||
                 !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-                http_response_code(403);
-                die('Erreur de sécurité : Token CSRF invalide');
+                ErrorHandler::displayErrorPageWithLayout(403, [
+                    'titre' => 'Erreur de sécurité',
+                    'reason' => 'Token CSRF invalide. Veuillez réessayer votre action.',
+                    'resource' => 'POST request'
+                ]);
             }
         }
 
@@ -95,32 +98,42 @@ class Main
         if(!empty($params) && $params[0] != ""){
             // ===== ÉTAPE 3 : DISPATCH VERS UN CONTRÔLEUR SPÉCIFIQUE =====
 
-            // 3.1. Construction du nom complet du contrôleur (FQCN)
-            // Exemple : "recipes" → "\\App\\Controllers\\RecipesController"
-            // ucfirst() met la première lettre en majuscule
-            // array_shift() extrait et retire le premier élément du tableau
-            $controller = '\\App\\Controllers\\'.ucfirst(array_shift($params)).'Controller';
+            try {
+                // 3.1. Construction du nom complet du contrôleur (FQCN)
+                // Exemple : "recipes" → "\\App\\Controllers\\RecipesController"
+                // ucfirst() met la première lettre en majuscule
+                // array_shift() extrait et retire le premier élément du tableau
+                $controller = '\\App\\Controllers\\'.ucfirst(array_shift($params)).'Controller';
 
-            // 3.2. Instanciation dynamique du contrôleur
-            // Équivalent à : $controller = new RecipesController();
-            $controller = new $controller();
+                // 3.2. Instanciation dynamique du contrôleur
+                // Équivalent à : $controller = new RecipesController();
+                $controller = new $controller();
 
-            // 3.3. Détermination de l'action (méthode) à exécuter
-            // Si présent dans l'URL, on l'utilise ; sinon on utilise "index" par défaut
-            // Exemple : ["lire", "5"] → "lire" (et il reste ["5"])
-            $action = (isset($params[0])) ? array_shift($params) : 'index';
+                // 3.3. Détermination de l'action (méthode) à exécuter
+                // Si présent dans l'URL, on l'utilise ; sinon on utilise "index" par défaut
+                // Exemple : ["lire", "5"] → "lire" (et il reste ["5"])
+                $action = (isset($params[0])) ? array_shift($params) : 'index';
 
-            // 3.4. Vérification de l'existence de la méthode et exécution
-            if(method_exists($controller, $action)){
-                // Exécution avec ou sans paramètres supplémentaires
-                // call_user_func_array() permet de passer un nombre variable d'arguments
-                // Exemple : call_user_func_array([RecipesController, "lire"], [5])
-                //           équivaut à RecipesController->lire(5)
-                (isset($params[0])) ? call_user_func_array([$controller, $action], $params) : $controller->$action();
-            }else{
-                // Gestion d'erreur : la méthode demandée n'existe pas
-                http_response_code(404);
-                echo "La page recherchée n'existe pas";
+                // 3.4. Vérification de l'existence de la méthode et exécution
+                if(method_exists($controller, $action)){
+                    // Exécution avec ou sans paramètres supplémentaires
+                    // call_user_func_array() permet de passer un nombre variable d'arguments
+                    // Exemple : call_user_func_array([RecipesController, "lire"], [5])
+                    //           équivaut à RecipesController->lire(5)
+                    (isset($params[0])) ? call_user_func_array([$controller, $action], $params) : $controller->$action();
+                }else{
+                    // Gestion d'erreur : la méthode demandée n'existe pas
+                    ErrorHandler::displayErrorPageWithLayout(404, [
+                        'titre' => 'Page non trouvée',
+                        'url' => $_SERVER['REQUEST_URI']
+                    ]);
+                }
+            } catch (\Error $e) {
+                // Gestion d'erreur : le contrôleur n'existe pas ou erreur critique
+                ErrorHandler::displayErrorPageWithLayout(404, [
+                    'titre' => 'Page non trouvée',
+                    'url' => $_SERVER['REQUEST_URI']
+                ]);
             }
         }else{
             // ===== ÉTAPE 4 : PAGE D'ACCUEIL PAR DÉFAUT =====

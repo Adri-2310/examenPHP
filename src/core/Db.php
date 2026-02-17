@@ -132,8 +132,8 @@ class Db extends PDO
             // Enregistrement de l'erreur technique dans les logs serveur
             error_log("Erreur de connexion DB : " . $e->getMessage());
 
-            // Affichage d'un message générique à l'utilisateur (ne révèle pas les détails technique)
-            die("Erreur de connexion à la base de données. Veuillez réessayer ultérieurement.");
+            // Affichage de la page d'erreur database complète
+            ErrorHandler::displayDatabaseErrorPage($e, 'connexion à la base de données');
         }
     }
 

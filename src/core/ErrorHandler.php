@@ -317,4 +317,135 @@ class ErrorHandler
         $allLines = file(self::$logFile, FILE_SKIP_EMPTY_LINES);
         return array_slice($allLines, -$lines);
     }
+
+    /**
+     * Affiche une page d'erreur personnalisée et termine l'exécution
+     *
+     * @param int $statusCode   Code HTTP (404, 500, 403, etc.)
+     * @param array $variables  Variables à passer à la vue d'erreur
+     * @return void             Exit
+     */
+    public static function displayErrorPage(int $statusCode, array $variables = []): void
+    {
+        // Définir le code de réponse HTTP
+        http_response_code($statusCode);
+
+        // Déterminer le fichier de vue basé sur le code d'erreur
+        $errorPages = [
+            404 => 'errors/404',
+            403 => 'errors/403',
+            500 => 'errors/500',
+            'database' => 'errors/database',
+            'maintenance' => 'errors/maintenance'
+        ];
+
+        $viewFile = $errorPages[$statusCode] ?? 'errors/500';
+        $viewPath = ROOT . '/views/' . $viewFile . '.php';
+
+        // Titre par défaut si non fourni
+        if (!isset($variables['titre'])) {
+            $variables['titre'] = match ($statusCode) {
+                404 => 'Page non trouvée',
+                403 => 'Accès refusé',
+                500 => 'Erreur serveur',
+                default => 'Erreur'
+            };
+        }
+
+        // Vérifier que le fichier de vue existe
+        if (!file_exists($viewPath)) {
+            http_response_code(500);
+            die('<h1>Erreur serveur</h1><p>Page d\'erreur introuvable.</p>');
+        }
+
+        // Charger la vue d'erreur avec les variables fournies
+        include $viewPath;
+        exit;
+    }
+
+    /**
+     * Affiche la page d'erreur de base de données avec layout complet
+     *
+     * @param Exception $exception  L'exception levée
+     * @param string $action        Action qui a échouée
+     * @param bool $showDetails     Afficher les détails techniques
+     * @return void                 Exit
+     */
+    public static function displayDatabaseErrorPage(\Exception $exception, string $action = 'Opération', bool $showDetails = false): void
+    {
+        http_response_code(500);
+
+        $variables = [
+            'titre' => 'Erreur base de données',
+            'message' => "Une erreur est survenue lors de : {$action}",
+            'action' => $action
+        ];
+
+        // Ajouter les détails techniques en développement (si showDetails = true)
+        if ($showDetails) {
+            $variables['showDetails'] = $exception->getMessage() . "\n\nFichier: " . $exception->getFile() . "\nLigne: " . $exception->getLine();
+        }
+
+        // Charger le contenu de la vue d'erreur database
+        extract($variables);
+        ob_start();
+        include ROOT . '/views/errors/database.php';
+        $contenu = ob_get_clean();
+
+        // Inclure le layout complet
+        include ROOT . '/views/base.php';
+        exit;
+    }
+
+    /**
+     * Affiche une page d'erreur personnalisée avec le layout complet
+     *
+     * @param int $statusCode   Code HTTP (404, 500, 403, etc.)
+     * @param array $variables  Variables à passer à la vue d'erreur
+     * @return void             Exit
+     */
+    public static function displayErrorPageWithLayout(int $statusCode, array $variables = []): void
+    {
+        // Définir le code de réponse HTTP
+        http_response_code($statusCode);
+
+        // Déterminer le fichier de vue basé sur le code d'erreur
+        $errorPages = [
+            404 => 'errors/404',
+            403 => 'errors/403',
+            500 => 'errors/500',
+            'database' => 'errors/database',
+            'maintenance' => 'errors/maintenance'
+        ];
+
+        $viewFile = $errorPages[$statusCode] ?? 'errors/500';
+        $viewPath = ROOT . '/views/' . $viewFile . '.php';
+
+        // Titre par défaut si non fourni
+        if (!isset($variables['titre'])) {
+            $variables['titre'] = match ($statusCode) {
+                404 => 'Page non trouvée',
+                403 => 'Accès refusé',
+                500 => 'Erreur serveur',
+                default => 'Erreur'
+            };
+        }
+
+        // Vérifier que le fichier de vue existe
+        if (!file_exists($viewPath)) {
+            http_response_code(500);
+            die('<h1>Erreur serveur</h1><p>Page d\'erreur introuvable.</p>');
+        }
+
+        // Charger le contenu de la vue d'erreur
+        extract($variables);
+        ob_start();
+        include $viewPath;
+        $contenu = ob_get_clean();
+
+        // Inclure le layout complet
+        $layoutPath = ROOT . '/views/base.php';
+        include $layoutPath;
+        exit;
+    }
 }

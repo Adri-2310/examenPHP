@@ -59,15 +59,26 @@ class PasswordToggler {
                 flex: 1;
             }
 
+            /* Ajouter plus d'espace quand il y a une icône de validation Bootstrap */
+            .password-wrapper input.is-valid,
+            .password-wrapper input.is-invalid {
+                padding-right: 75px;
+            }
+
             .password-toggle-btn {
                 position: absolute !important;
-                right: 0 !important;
+                right: 32px !important;
                 border: none !important;
                 background: transparent !important;
                 cursor: pointer;
                 padding: 8px 12px !important;
                 font-size: 18px;
                 z-index: 10;
+            }
+
+            /* Positionner l'oeil plus à droite quand pas de validation */
+            .password-wrapper input:not(.is-valid):not(.is-invalid) ~ .password-toggle-btn {
+                right: 0 !important;
             }
 
             .password-toggle-btn:hover {

@@ -185,7 +185,8 @@ class UsersController extends Controller
                             'method' => 'findOneByEmail'
                         ]);
 
-                        $erreur = "❌ Erreur lors de la connexion. Veuillez réessayer.";
+                        // Affiche la page d'erreur database
+                        ErrorHandler::displayDatabaseErrorPage($e, 'authentification');
                     }
                 }
             }
@@ -314,7 +315,8 @@ class UsersController extends Controller
                                     'method' => 'createUser'
                                 ]);
 
-                                $erreur = "❌ Erreur lors de l'inscription. Veuillez réessayer.";
+                                // Affiche la page d'erreur database
+                                ErrorHandler::displayDatabaseErrorPage($e, 'inscription');
                             }
                         }
                     } catch (\PDOException $e) {
@@ -324,7 +326,8 @@ class UsersController extends Controller
                             'method' => 'findOneByEmail'
                         ]);
 
-                        $erreur = "❌ Erreur lors de la vérification. Veuillez réessayer.";
+                        // Affiche la page d'erreur database
+                        ErrorHandler::displayDatabaseErrorPage($e, 'vérification email');
                     }
                 }
             } else {

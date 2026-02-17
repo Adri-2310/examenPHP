@@ -71,9 +71,8 @@ class RecipesController extends Controller
                 'method' => 'findAllByUserId'
             ]);
 
-            // Redirige avec message d'erreur
-            header('Location: /');
-            exit;
+            // Affiche la page d'erreur database
+            ErrorHandler::displayDatabaseErrorPage($e, 'chargement de vos recettes');
         }
     }
 
@@ -319,8 +318,7 @@ class RecipesController extends Controller
                 'method' => 'find'
             ]);
 
-            header('Location: /recipes');
-            exit;
+            ErrorHandler::displayDatabaseErrorPage($e, 'lecture de la recette');
         }
     }
 
@@ -581,10 +579,7 @@ class RecipesController extends Controller
                 'method' => 'find'
             ]);
 
-            $_SESSION['toasts'][] = [
-                'type' => 'error',
-                'message' => '❌ Erreur lors du traitement'
-            ];
+            ErrorHandler::displayDatabaseErrorPage($e, 'suppression de la recette');
         }
 
         // 4. Redirection vers la liste des recettes
