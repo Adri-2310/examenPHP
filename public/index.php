@@ -60,6 +60,11 @@ if (empty($_SESSION['csrf_token'])) {
 require_once ROOT . '/Autoloader.php';
 App\Autoloader::register();
 
+// ===== ÉTAPE 4.5 : INITIALISATION DU GESTIONNAIRE D'ERREURS =====
+// ErrorHandler gère le logging centralisé et l'affichage des erreurs
+// Tous les controllers peuvent utiliser ErrorHandler::log() pour tracer les erreurs
+use App\Core\ErrorHandler;
+
 // ===== ÉTAPE 5 : INSTANCIATION DU ROUTEUR =====
 // La classe Main gère le routage HTTP et dispatche vers les contrôleurs
 $app = new App\Core\Main();
