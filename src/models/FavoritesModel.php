@@ -23,6 +23,7 @@
 namespace App\Models;
 
 use App\Core\Model;
+use App\Core\ErrorHandler;
 
 class FavoritesModel extends Model
 {
@@ -67,7 +68,16 @@ class FavoritesModel extends Model
      */
     public function findAllByUserId(int $userId)
     {
-        return $this->requete("SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY created_at DESC", [$userId])->fetchAll();
+        try {
+            return $this->requete("SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY created_at DESC", [$userId])->fetchAll();
+        } catch (\PDOException $e) {
+            ErrorHandler::logDatabaseError($e, 'FavoritesModel::findAllByUserId()', [
+                'model' => 'FavoritesModel',
+                'method' => 'findAllByUserId',
+                'user_id' => $userId
+            ]);
+            throw $e;
+        }
     }
 
     /**
@@ -95,6 +105,16 @@ class FavoritesModel extends Model
      */
     public function exists(int $userId, string $apiId)
     {
-        return $this->requete("SELECT id FROM {$this->table} WHERE user_id = ? AND id_api = ?", [$userId, $apiId])->fetch();
+        try {
+            return $this->requete("SELECT id FROM {$this->table} WHERE user_id = ? AND id_api = ?", [$userId, $apiId])->fetch();
+        } catch (\PDOException $e) {
+            ErrorHandler::logDatabaseError($e, 'FavoritesModel::exists()', [
+                'model' => 'FavoritesModel',
+                'method' => 'exists',
+                'user_id' => $userId,
+                'id_api' => $apiId
+            ]);
+            throw $e;
+        }
     }
 }

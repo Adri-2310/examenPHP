@@ -26,6 +26,7 @@
 namespace App\Models;
 
 use App\Core\Model;
+use App\Core\ErrorHandler;
 
 class UsersModel extends Model
 {
@@ -73,7 +74,16 @@ class UsersModel extends Model
      */
     public function findOneByEmail(string $email)
     {
-        return $this->requete("SELECT * FROM {$this->table} WHERE email = ?", [$email])->fetch();
+        try {
+            return $this->requete("SELECT * FROM {$this->table} WHERE email = ?", [$email])->fetch();
+        } catch (\PDOException $e) {
+            ErrorHandler::logDatabaseError($e, 'UsersModel::findOneByEmail()', [
+                'model' => 'UsersModel',
+                'method' => 'findOneByEmail',
+                'email' => $email
+            ]);
+            throw $e;
+        }
     }
 
     /**
@@ -100,9 +110,18 @@ class UsersModel extends Model
      */
     public function createUser(string $email, string $password, string $nom)
     {
-        return $this->requete(
-            "INSERT INTO {$this->table} (email, password, nom, role) VALUES (?, ?, ?, ?)",
-            [$email, $password, $nom, json_encode(['ROLE_USER'])]
-        );
+        try {
+            return $this->requete(
+                "INSERT INTO {$this->table} (email, password, nom, role) VALUES (?, ?, ?, ?)",
+                [$email, $password, $nom, json_encode(['ROLE_USER'])]
+            );
+        } catch (\PDOException $e) {
+            ErrorHandler::logDatabaseError($e, 'UsersModel::createUser()', [
+                'model' => 'UsersModel',
+                'method' => 'createUser',
+                'email' => $email
+            ]);
+            throw $e;
+        }
     }
 }

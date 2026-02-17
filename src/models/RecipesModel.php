@@ -22,6 +22,7 @@
 namespace App\Models;
 
 use App\Core\Model;
+use App\Core\ErrorHandler;
 
 class RecipesModel extends Model
 {
@@ -80,12 +81,21 @@ class RecipesModel extends Model
      */
     public function findAllWithAuthor()
     {
-        return $this->requete("
-            SELECT r.*, u.nom as author_name
-            FROM {$this->table} r
-            INNER JOIN users u ON r.user_id = u.id
-            ORDER BY created_at DESC
-        ")->fetchAll();
+        try {
+            return $this->requete("
+                SELECT r.*, u.nom as author_name
+                FROM {$this->table} r
+                INNER JOIN users u ON r.user_id = u.id
+                ORDER BY created_at DESC
+            ")->fetchAll();
+        } catch (\PDOException $e) {
+            ErrorHandler::logDatabaseError($e, 'RecipesModel::findAllWithAuthor()', [
+                'model' => 'RecipesModel',
+                'method' => 'findAllWithAuthor',
+                'query' => 'JOIN recipes WITH users ORDER BY created_at DESC'
+            ]);
+            throw $e;
+        }
     }
 
     /**
@@ -106,6 +116,15 @@ class RecipesModel extends Model
      */
     public function findAllByUserId(int $userId)
     {
-        return $this->requete("SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY created_at DESC", [$userId])->fetchAll();
+        try {
+            return $this->requete("SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY created_at DESC", [$userId])->fetchAll();
+        } catch (\PDOException $e) {
+            ErrorHandler::logDatabaseError($e, 'RecipesModel::findAllByUserId()', [
+                'model' => 'RecipesModel',
+                'method' => 'findAllByUserId',
+                'user_id' => $userId
+            ]);
+            throw $e;
+        }
     }
 }
