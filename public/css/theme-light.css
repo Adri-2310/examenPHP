@@ -98,6 +98,13 @@ body[data-theme="light"] {
     color: var(--color-text-primary);
 }
 
+/* MAIN */
+body[data-theme="light"] main {
+    background-color: #efefef;
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+}
+
 /* NAVBAR */
 body[data-theme="light"] .navbar {
     background-color: var(--color-bg-secondary) !important;
