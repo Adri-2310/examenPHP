@@ -12,10 +12,10 @@
     /* ========== COULEURS DE BASE ========== */
 
     /* Arrière-plans */
-    --color-bg-primary: #ffffff;      /* Fond principal de la page */
-    --color-bg-secondary: #f8f9fa;    /* Fond des cartes, modales */
-    --color-bg-tertiary: #e9ecef;     /* Fond des inputs, sections */
-    --color-bg-hover: #e0e0e0;        /* Fond au survol */
+    --color-bg-primary: #f5f5f5;      /* Fond principal de la page */
+    --color-bg-secondary: #e8e8e8;    /* Fond des cartes, modales */
+    --color-bg-tertiary: #dadada;     /* Fond des inputs, sections */
+    --color-bg-hover: #c8c8c8;        /* Fond au survol */
 
     /* Texte */
     --color-text-primary: #212529;    /* Texte principal */
@@ -93,7 +93,7 @@
 
 /* ========== STYLES GLOBAUX THÈME CLAIR ========== */
 
-bodybody[data-theme="light"] {
+body[data-theme="light"] {
     background-color: var(--color-bg-primary);
     color: var(--color-text-primary);
 }
@@ -297,8 +297,8 @@ body[data-theme="light"] .recipe-ingredients .list-group-item {
 /* FORMULAIRES */
 body[data-theme="light"] .form-control,
 body[data-theme="light"] .form-select {
-    background-color: #ffffff;
-    border: 2px solid #e0e0e0;
+    background-color: #f5f5f5;
+    border: 2px solid #d0d0d0;
     color: var(--color-text-primary);
     transition: all var(--transition-fast);
     font-size: var(--font-size-base);
@@ -312,7 +312,7 @@ body[data-theme="light"] .form-control::placeholder {
 
 body[data-theme="light"] .form-control:focus,
 body[data-theme="light"] .form-select:focus {
-    background-color: #ffffff;
+    background-color: #f5f5f5;
     border-color: var(--color-info);
     color: var(--color-text-primary);
     box-shadow: 0 0 0 0.3rem rgba(13, 110, 253, 0.3);
@@ -333,7 +333,7 @@ body[data-theme="light"] .form-text {
 
 /* File Input Light */
 body[data-theme="light"] input[type="file"] {
-    background-color: #ffffff;
+    background-color: #f5f5f5;
     color: var(--color-text-primary);
     border: 2px solid var(--color-border);
 }
