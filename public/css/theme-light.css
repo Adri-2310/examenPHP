@@ -12,10 +12,10 @@
     /* ========== COULEURS DE BASE ========== */
 
     /* Arrière-plans */
-    --color-bg-primary: #f5f5f5;      /* Fond principal de la page */
-    --color-bg-secondary: #e8e8e8;    /* Fond des cartes, modales */
-    --color-bg-tertiary: #dadada;     /* Fond des inputs, sections */
-    --color-bg-hover: #c8c8c8;        /* Fond au survol */
+    --color-bg-primary: #E7E5E4;      /* Fond principal de la page */
+    --color-bg-secondary: #D6D3D1;    /* Fond des cartes, modales, header, footer, main */
+    --color-bg-tertiary: #D6D3D1;     /* Fond des inputs, sections */
+    --color-bg-hover: #C4BFB9;        /* Fond au survol */
 
     /* Texte */
     --color-text-primary: #212529;    /* Texte principal */
@@ -23,8 +23,8 @@
     --color-text-tertiary: #999999;   /* Texte léger (timestamps) */
 
     /* Bordures */
-    --color-border: #dee2e6;          /* Bordures des éléments */
-    --color-border-light: #e9ecef;    /* Bordures légères */
+    --color-border: #CCBFB9;          /* Bordures des éléments */
+    --color-border-light: #D6D3D1;    /* Bordures légères */
 
     /* Couleurs Sémantiques */
     --color-success: #198754;         /* Succès (vert) */
@@ -100,7 +100,7 @@ body[data-theme="light"] {
 
 /* MAIN */
 body[data-theme="light"] main {
-    background-color: #efefef;
+    background-color: #D6D3D1;
     border-radius: var(--border-radius-lg);
     padding: var(--spacing-lg);
 }
