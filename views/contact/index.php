@@ -42,7 +42,7 @@
                         <div class="mb-3">
                             <label for="nom" class="form-label">Votre nom *</label>
                             <input type="text" class="form-control" id="nom" name="nom"
-                                   value="<?= htmlspecialchars($_POST['nom'] ?? '') ?>"
+                                   value="<?= htmlspecialchars($_POST['nom'] ?? $_SESSION['user']['nom'] ?? '') ?>"
                                    placeholder="Ex: Jean Dupont" required>
                             <small class="text-muted">Minimum 2 caractères</small>
                         </div>
@@ -50,15 +50,21 @@
                         <div class="mb-3">
                             <label for="email" class="form-label">Votre email *</label>
                             <input type="email" class="form-control" id="email" name="email"
-                                   value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                                   value="<?= htmlspecialchars($_POST['email'] ?? $_SESSION['user']['email'] ?? '') ?>"
                                    placeholder="exemple@email.com" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="sujet" class="form-label">Sujet *</label>
-                            <input type="text" class="form-control" id="sujet" name="sujet"
-                                   value="<?= htmlspecialchars($_POST['sujet'] ?? '') ?>"
-                                   placeholder="Ex: Question sur une recette" required>
+                            <select class="form-select" id="sujet" name="sujet" required>
+                                <option value="" disabled selected>-- Sélectionnez un sujet --</option>
+                                <option value="Question sur une recette" <?= ($_POST['sujet'] ?? '') === 'Question sur une recette' ? 'selected' : '' ?>>📖 Question sur une recette</option>
+                                <option value="Problème technique" <?= ($_POST['sujet'] ?? '') === 'Problème technique' ? 'selected' : '' ?>>🔧 Problème technique</option>
+                                <option value="Signaler un bug" <?= ($_POST['sujet'] ?? '') === 'Signaler un bug' ? 'selected' : '' ?>>🐛 Signaler un bug</option>
+                                <option value="Suggestion de fonctionnalité" <?= ($_POST['sujet'] ?? '') === 'Suggestion de fonctionnalité' ? 'selected' : '' ?>>💡 Suggestion de fonctionnalité</option>
+                                <option value="Problème avec un favori" <?= ($_POST['sujet'] ?? '') === 'Problème avec un favori' ? 'selected' : '' ?>>❤️ Problème avec un favori</option>
+                                <option value="Autre" <?= ($_POST['sujet'] ?? '') === 'Autre' ? 'selected' : '' ?>>📝 Autre</option>
+                            </select>
                         </div>
 
                         <div class="mb-3">
