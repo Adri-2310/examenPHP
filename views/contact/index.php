@@ -43,15 +43,16 @@
                             <label for="nom" class="form-label">Votre nom *</label>
                             <input type="text" class="form-control" id="nom" name="nom"
                                    value="<?= htmlspecialchars($_POST['nom'] ?? $_SESSION['user']['nom'] ?? '') ?>"
-                                   placeholder="Ex: Jean Dupont" required>
-                            <small class="text-muted">Minimum 2 caractères</small>
+                                   placeholder="Ex: Jean Dupont" readonly>
+                            <small class="text-muted">Lecture seule</small>
                         </div>
 
                         <div class="mb-3">
                             <label for="email" class="form-label">Votre email *</label>
                             <input type="email" class="form-control" id="email" name="email"
                                    value="<?= htmlspecialchars($_POST['email'] ?? $_SESSION['user']['email'] ?? '') ?>"
-                                   placeholder="exemple@email.com" required>
+                                   placeholder="exemple@email.com" readonly>
+                            <small class="text-muted">Lecture seule</small>
                         </div>
 
                         <div class="mb-3">
