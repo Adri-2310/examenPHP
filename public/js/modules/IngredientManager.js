@@ -1,37 +1,93 @@
 /**
- * IngredientManager.js
+ * IngredientManager.js - Gestion dynamique des ingrédients
  *
- * Gère l'ajout/suppression dynamique des ingrédients dans le formulaire de création de recettes.
- * Permet aux utilisateurs d'ajouter autant d'ingrédients que nécessaire sans rechargement de page.
+ * OBJECTIF:
+ * Permettre aux utilisateurs d'ajouter/supprimer des ingrédients dynamiquement
+ * lors de la création ou modification d'une recette, sans rechargement de page.
+ *
+ * FONCTIONNALITÉS:
+ * - Ajout illimité de lignes d'ingrédients avec un bouton
+ * - Suppression individuelle de chaque ingrédient (bouton X)
+ * - Pré-remplissage automatique sur la page d'édition
+ * - Validation des ingrédients au submit du formulaire
+ * - Gestion du JSON: stockage et récupération en base de données
+ *
+ * FORMAT DES DONNÉES:
+ * Les ingrédients sont stockés en JSON dans la base:
+ * [
+ *   {"name": "Tomate", "qty": "500g"},
+ *   {"name": "Basil", "qty": "10 feuilles"}
+ * ]
+ *
+ * POINTS CLÉS:
+ * - Chaque input a les noms: ingredients[name][] et ingredients[qty][]
+ * - Le [] en PHP signifie tableau (collecté automatiquement)
+ * - Sur la page d'édition, les données sont pré-remplies depuis data-ingredients
+ * - Validation: champs name et qty sont requis
  *
  * @class IngredientManager
+ * @param {void}
+ *
  * @example
- * // Utilisation dans main.js
- * new IngredientManager();
+ * // Initialisation dans main.js (page "ajouter" uniquement)
+ * if (document.getElementById('ingredients-wrapper')) {
+ *   new IngredientManager();
+ * }
+ *
+ * @example
+ * // HTML attendu
+ * <div id="ingredients-wrapper" data-ingredients='[{"name":"Tomate","qty":"500g"}]'>
+ *   <!-- Lignes générées ici -->
+ * </div>
+ * <button id="add-ingredient-btn" class="btn btn-primary">+ Ajouter ingrédient</button>
+ *
+ * @author Marmiton-Exam v1.0
  */
 class IngredientManager {
     /**
-     * Initialise le gestionnaire d'ingrédients
-     * Récupère les éléments du DOM et ajoute les écouteurs d'événements
+     * Constructeur - Initialise le gestionnaire d'ingrédients
+     *
+     * ACTIONS:
+     * 1. Récupère le bouton "Ajouter ingrédient" (#add-ingredient-btn)
+     * 2. Récupère le conteneur des ingrédients (#ingredients-wrapper)
+     * 3. Ajoute listener de clic au bouton
+     * 4. Pré-remplit les ingrédients existants (si édition)
+     *
+     * VÉRIFICATION:
+     * - Vérifie que le DOM contient ces deux éléments
+     * - Arrête silencieusement si éléments manquants (page sans formulaire)
+     *
      * @constructor
+     * @returns {void}
      */
     constructor() {
-        // Récupérer les éléments du DOM
+        // === ÉTAPE 1: RÉCUPÉRATION DES ÉLÉMENTS ===
+        // Bouton pour ajouter une nouvelle ligne d'ingrédient
         this.addBtn = document.getElementById('add-ingredient-btn');
+
+        // Conteneur où seront ajoutées toutes les lignes d'ingrédients
+        // Cet élément contient aussi l'attribut data-ingredients (sur édition)
         this.wrapper = document.getElementById('ingredients-wrapper');
 
-        // Vérifier que les éléments existent
+        // === ÉTAPE 2: VÉRIFICATION ===
+        // Arrêter si les éléments n'existent pas
+        // (Cela signifie qu'on n'est pas sur la page "ajouter/éditer")
         if (!this.addBtn || !this.wrapper) {
             return;
         }
 
-        // Ajouter un listener 'click' sur le bouton
+        // === ÉTAPE 3: LISTENER DU BOUTON ===
+        // Quand utilisateur clique sur "+ Ajouter ingrédient"
+        // Appelle addInput() pour créer une nouvelle ligne vide
         this.addBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.addInput();
+            e.preventDefault(); // Empêcher rechargement de page
+            this.addInput(); // Créer nouvelle ligne
         });
 
-        // Pré-remplir les ingrédients existants (pour la page d'édition)
+        // === ÉTAPE 4: PRÉ-REMPLISSAGE ===
+        // Si on est sur la page d'édition, il y a des ingrédients existants
+        // dans l'attribut data-ingredients
+        // Cette méthode les récupère et remplit les inputs
         this.populateExistingIngredients();
     }
 

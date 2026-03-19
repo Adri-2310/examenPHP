@@ -1,28 +1,78 @@
 /**
- * FavoriteToggler.js
+ * FavoriteToggler.js - Gestion des favoris avec AJAX
  *
- * Gère l'ajout/suppression aux favoris via AJAX (Fetch).
- * Permet de basculer les favoris sans rechargement de page.
- * Notifications Toastify pour le feedback utilisateur.
+ * OBJECTIF:
+ * Permettre aux utilisateurs d'ajouter/retirer des recettes API aux favoris
+ * sans rechargement de page. Utilise Fetch API pour les requêtes AJAX.
+ *
+ * FONCTIONNALITÉS:
+ * - Toggle favoris (ajouter/retirer) avec un seul clic
+ * - Suppression des favoris avec confirmation
+ * - Feedback immédiat avec boutons animés et toasts notifications
+ * - Suppression visuelle des cards avec animation (fade out)
+ * - Gestion des erreurs de connexion/serveur
+ * - CSRF protection (token inclus dans les données)
+ *
+ * WORKFLOW UTILISATEUR:
+ * 1. Clic sur bouton "Ajouter aux favoris" (🤍)
+ * 2. Requête AJAX vers /favorites/toggle
+ * 3. Serveur ajoute le favori en base
+ * 4. Réponse: {success: true, isFavorite: true}
+ * 5. Bouton change: couleur rouge + texte "Retirer"
+ * 6. Notification toast affichée
+ *
+ * BOUTONS GÉRÉS:
+ * - .btn-toggle-fav : Ajouter/Retirer favoris (recherche + détails API)
+ * - .btn-delete-fav : Supprimer complètement le favori (liste favoris)
  *
  * @class FavoriteToggler
+ * @param {void}
+ *
  * @example
- * // Utilisation dans main.js
+ * // Initialisation dans main.js
  * new FavoriteToggler();
+ *
+ * @author Marmiton-Exam v1.0
+ * @see ../notification.js pour Notifications.success/error()
  */
 class FavoriteToggler {
     /**
-     * Initialise les écouteurs d'événements pour les boutons favoris
+     * Constructeur - Initialise les listeners pour tous les boutons favoris
+     *
+     * ACTIONS:
+     * 1. Sélectionne tous les boutons .btn-toggle-fav (toggle add/remove)
+     * 2. Sélectionne tous les boutons .btn-delete-fav (suppression définitive)
+     * 3. Ajoute listeners de clic à tous ces boutons
+     *
+     * SÉLECTEURS CSS:
+     * - .btn-toggle-fav : Bouton pour ajouter/retirer (couleur change)
+     * - .btn-delete-fav : Bouton pour supprimer (avec confirmation)
+     *
      * @constructor
+     * @returns {void}
+     *
+     * @example
+     * // HTML attendu
+     * <button class="btn btn-success btn-toggle-fav"
+     *         data-id="12345"
+     *         data-titre="Pizza Margherita"
+     *         data-image="https://..."
+     *         data-csrf="token...">
+     *   ❤️ Ajouter aux favoris
+     * </button>
      */
     constructor() {
-        // Gérer les boutons d'ajout de favoris (.btn-toggle-fav)
+        // === SECTION 1: BOUTONS TOGGLE (Ajouter/Retirer) ===
+        // Ces boutons apparaissent sur les recettes API (résultats recherche, détails)
+        // Clic = toggle favori + changement couleur/texte du bouton
         this.addFavoriteButtons = document.querySelectorAll('.btn-toggle-fav');
         this.addFavoriteButtons.forEach(btn => {
             btn.addEventListener('click', (e) => this.handleAddFavorite(e));
         });
 
-        // Gérer les boutons de suppression de favoris (.btn-delete-fav)
+        // === SECTION 2: BOUTONS SUPPRESSION (Delete) ===
+        // Ces boutons apparaissent dans la liste des favoris
+        // Clic = demande confirmation + suppression du favori + animation fade
         this.deleteFavoriteButtons = document.querySelectorAll('.btn-delete-fav');
         this.deleteFavoriteButtons.forEach(btn => {
             btn.addEventListener('click', (e) => this.handleDeleteFavorite(e));

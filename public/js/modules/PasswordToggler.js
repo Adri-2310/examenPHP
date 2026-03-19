@@ -1,38 +1,90 @@
 /**
- * PasswordToggler.js
+ * PasswordToggler.js - Affichage/masquage du mot de passe
  *
- * Gère l'affichage/masquage du mot de passe dans les formulaires.
- * Permet aux utilisateurs de vérifier leur mot de passe avant de soumettre.
- * Crée des styles CSS dynamiquement et ajoute des boutons toggle à chaque input password.
+ * OBJECTIF:
+ * Permettre aux utilisateurs de voir/masquer leur mot de passe en cliquant
+ * sur une icône (👁️ = visible, 🙈 = masqué). Améliore l'UX sur mobile/desktop.
+ *
+ * FONCTIONNALITÉS:
+ * - Icône toggle (👁️/🙈) positionnée à droite du champ
+ * - Styles CSS générés dynamiquement (injection <style>)
+ * - Compatible avec la validation Bootstrap (is-valid/is-invalid)
+ * - Responsive et fluide sur tous les appareils
+ * - Changement instantané du type d'input (password ↔ text)
+ *
+ * WORKFLOW:
+ * 1. Détecte tous les <input type="password">
+ * 2. Enveloppe chaque input dans un div .password-wrapper
+ * 3. Ajoute un bouton avec icône 👁️
+ * 4. Au clic: change input.type entre "password" et "text"
+ * 5. Met à jour l'icône (👁️ ↔ 🙈)
+ *
+ * UX AMÉLIORATIONS:
+ * - Utilisateurs peuvent vérifier leur mot de passe avant submit
+ * - Particulièrement utile sur mobile avec petits claviers
+ * - Améliore la confiance de l'utilisateur
+ * - Réduit les erreurs de saisie de mot de passe
  *
  * @class PasswordToggler
+ * @param {void}
+ *
  * @example
- * // Utilisation dans main.js
+ * // Initialisation automatique dans main.js
  * new PasswordToggler();
+ *
+ * @example
+ * // Résultat HTML généré
+ * <div class="password-wrapper">
+ *   <input type="password" class="form-control" ...>
+ *   <button class="password-toggle-btn" title="Afficher/Masquer">👁️</button>
+ * </div>
+ *
+ * @author Marmiton-Exam v1.0
  */
 class PasswordToggler {
     /**
-     * Initialise le gestionnaire de visibilité des mots de passe
-     * Ajoute les styles CSS et crée les boutons toggle pour chaque input password
+     * Constructeur - Initialise le toggle pour tous les champs password
+     *
+     * ACTIONS:
+     * 1. Injecte les styles CSS pour .password-wrapper et .password-toggle-btn
+     * 2. Sélectionne tous les <input type="password">
+     * 3. Crée un bouton toggle pour chaque input
+     * 4. Enveloppe l'input dans un conteneur flex
+     *
+     * POINTS CLÉS:
+     * - Les styles sont créés dynamiquement (pas de fichier CSS externe)
+     * - Gère les cas avec/sans validation Bootstrap (padding différent)
+     * - Utilise position: relative/absolute pour positionnement du bouton
+     *
      * @constructor
+     * @returns {void}
      */
     constructor() {
-        // Ajouter du CSS au document
+        // === ÉTAPE 1: INJECTION DES STYLES CSS ===
+        // Crée une balise <style> avec tous les CSS nécessaires
+        // Fait en JavaScript pour plus de flexibilité
         this.addStyles();
 
-        // Sélectionner tous les champs password du formulaire
+        // === ÉTAPE 2: SÉLECTION DES INPUTS PASSWORD ===
+        // Sélectionne TOUS les champs password du document
+        // Utilise querySelectorAll pour cibler les inputs du DOM
         this.passwordInputs = document.querySelectorAll('input[type="password"]');
 
+        // === ÉTAPE 3: VÉRIFICATION ===
+        // Si aucun input password, arrêter (pas d'erreur)
         if (this.passwordInputs.length === 0) {
             return;
         }
 
-        // Boucler sur chaque input password
+        // === ÉTAPE 4: CRÉATION DES BOUTONS ===
+        // Pour chaque input password, créer son bouton toggle
+        // Utilise try/catch pour éviter qu'une erreur bloque tout
         this.passwordInputs.forEach((input) => {
             try {
                 this.createToggleButton(input);
             } catch (error) {
-                // Erreur silencieuse
+                // Silencieuse: continue même si une erreur survient
+                // Un input cassé ne doit pas casser les autres
             }
         });
     }
