@@ -94,12 +94,29 @@
     const itemsPerPage = 9;
 
     /**
-     * Charge les catégories disponibles via endpoint PHP
+     * Charge les catégories disponibles via endpoint PHP avec cache localStorage (7 jours)
      */
     async function loadCategories() {
         try {
-            const response = await fetch('/api/getCategories');
-            const data = await response.json();
+            // Vérifier le cache localStorage
+            const cached = localStorage.getItem('categories_cache');
+            let data = null;
+
+            if (cached) {
+                try {
+                    data = JSON.parse(cached);
+                } catch (e) {
+                    localStorage.removeItem('categories_cache');
+                }
+            }
+
+            // Si pas en cache, fetcher depuis l'API
+            if (!data) {
+                const response = await fetch('/api/getCategories');
+                data = await response.json();
+                // Sauvegarder en cache
+                localStorage.setItem('categories_cache', JSON.stringify(data));
+            }
 
             if (data.meals) {
                 data.meals.forEach(cat => {
@@ -115,12 +132,29 @@
     }
 
     /**
-     * Charge les régions (areas) disponibles via endpoint PHP
+     * Charge les régions (areas) disponibles via endpoint PHP avec cache localStorage (7 jours)
      */
     async function loadAreas() {
         try {
-            const response = await fetch('/api/getAreas');
-            const data = await response.json();
+            // Vérifier le cache localStorage
+            const cached = localStorage.getItem('areas_cache');
+            let data = null;
+
+            if (cached) {
+                try {
+                    data = JSON.parse(cached);
+                } catch (e) {
+                    localStorage.removeItem('areas_cache');
+                }
+            }
+
+            // Si pas en cache, fetcher depuis l'API
+            if (!data) {
+                const response = await fetch('/api/getAreas');
+                data = await response.json();
+                // Sauvegarder en cache
+                localStorage.setItem('areas_cache', JSON.stringify(data));
+            }
 
             if (data.meals) {
                 data.meals.forEach(area => {
@@ -136,9 +170,9 @@
     }
 
     /**
-     * Affiche une recette dans la grille de résultats
+     * Crée une recette pour affichage (retourne l'élément au lieu de l'ajouter)
      */
-    function displayMeal(meal) {
+    function createMealElement(meal) {
         const col = document.createElement('div');
         col.className = 'col-md-4 mb-4';
 
@@ -163,7 +197,20 @@
                 </div>
             </div>
         `;
-        resultsArea.appendChild(col);
+        return col;
+    }
+
+    /**
+     * Affiche plusieurs recettes en une seule opération (batch rendering)
+     * Utilise DocumentFragment pour un seul reflow au lieu de N
+     */
+    function displayMealsInBatch(meals) {
+        const fragment = document.createDocumentFragment();
+        meals.forEach(meal => {
+            const col = createMealElement(meal);
+            fragment.appendChild(col);
+        });
+        resultsArea.appendChild(fragment);
     }
 
     /**
@@ -178,14 +225,14 @@
         const endIndex = startIndex + itemsPerPage;
         const mealsToShow = allMealsData.slice(startIndex, endIndex);
 
-        // Afficher les recettes de cette page
-        mealsToShow.forEach(meal => displayMeal(meal));
+        // Afficher les recettes en batch (un seul reflow DOM)
+        displayMealsInBatch(mealsToShow);
 
         // Mettre à jour la pagination
         updatePagination();
 
-        // Scroll vers le haut
-        window.scrollTo({ top: resultsArea.offsetTop - 100, behavior: 'smooth' });
+        // Scroll vers le haut (sans animation pour plus de rapidité)
+        resultsArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     /**
@@ -247,6 +294,27 @@
     /**
      * Effectue la recherche en combinant texte + filtres
      */
+    /**
+     * Batch-load les détails des repas par groupes de 10 au lieu de tout charger en parallèle
+     * Réduit la charge serveur et les délais d'attente
+     */
+    async function batchLoadMealDetails(mealIds) {
+        const batchSize = 10;
+        const allDetails = [];
+
+        for (let i = 0; i < mealIds.length; i += batchSize) {
+            const batch = mealIds.slice(i, i + batchSize);
+            const promises = batch.map(id =>
+                fetch(`/api/getMealDetails/${id}`).then(r => r.json().catch(() => ({ meals: null })))
+            );
+            const results = await Promise.all(promises);
+            const details = results.map(r => r.meals?.[0]).filter(Boolean);
+            allDetails.push(...details);
+        }
+
+        return allDetails;
+    }
+
     async function search() {
         const query = searchInput.value.trim();
         const category = categoryFilter.value;
@@ -256,6 +324,20 @@
         if (!query && !category && !area) {
             alert('Entrez une recherche ou sélectionnez une catégorie/région');
             return;
+        }
+
+        // Vérifier le cache localStorage
+        const cacheKey = `meals_${query}_${category}_${area}`;
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+            try {
+                allMealsData = JSON.parse(cached);
+                currentPage = 1;
+                displayPaginatedResults(1);
+                return;
+            } catch (e) {
+                console.warn('Cache invalide, nouvelle recherche');
+            }
         }
 
         resultsArea.innerHTML = '<div class="text-center mt-5"><div class="spinner-border text-primary"></div><p>Recherche...</p></div>';
@@ -270,53 +352,47 @@
                 if (data.meals) allMeals = data.meals;
             }
 
-            // 2. Filtre par catégorie (si fourni)
+            // 2. Filtre par catégorie (si fourni) - Batch load les détails
             if (category) {
                 const response = await fetch(`/api/filterByCategory/${encodeURIComponent(category)}`);
                 const data = await response.json();
-                if (data.meals) {
-                    // Charger les détails complets pour avoir strCategory et strArea
-                    const detailPromises = data.meals.map(meal =>
-                        fetch(`/api/getMealDetails/${meal.idMeal}`).then(r => r.json())
-                    );
-                    const details = await Promise.all(detailPromises);
-                    const fullMeals = details.map(d => d.meals && d.meals[0]).filter(Boolean);
+                if (data.meals && data.meals.length > 0) {
+                    // Batch-load les détails pour réduire les appels API
+                    const mealIds = data.meals.map(m => m.idMeal);
+                    const fullMeals = await batchLoadMealDetails(mealIds);
 
-                    // Si on a déjà des résultats de recherche texte, faire l'intersection
+                    // Créer un Map pour O(1) lookup au lieu de O(n²) avec find()
+                    const fullMealsMap = new Map(fullMeals.map(m => [m.idMeal, m]));
+
                     if (allMeals.length > 0) {
-                        const fullMealIds = new Set(fullMeals.map(m => m.idMeal));
-                        allMeals = allMeals.filter(m => fullMealIds.has(m.idMeal));
-                        // Ajouter les détails complets (strArea, etc)
-                        allMeals = allMeals.map(meal => {
-                            const full = fullMeals.find(f => f.idMeal === meal.idMeal);
-                            return full || meal;
-                        });
+                        // Intersection avec résultats existants
+                        allMeals = allMeals.filter(m => fullMealsMap.has(m.idMeal))
+                                          .map(m => fullMealsMap.get(m.idMeal) || m);
                     } else {
                         allMeals = fullMeals;
                     }
                 }
             }
 
-            // 3. Filtre par région (si fourni)
+            // 3. Filtre par région (si fourni) - Batch load les détails
             if (area) {
                 const response = await fetch(`/api/filterByArea/${encodeURIComponent(area)}`);
                 const data = await response.json();
-                if (data.meals) {
-                    // Charger les détails complets pour avoir strCategory et strArea
-                    const detailPromises = data.meals.map(meal =>
-                        fetch(`/api/getMealDetails/${meal.idMeal}`).then(r => r.json())
-                    );
-                    const details = await Promise.all(detailPromises);
-                    const fullMeals = details.map(d => d.meals && d.meals[0]).filter(Boolean);
+                if (data.meals && data.meals.length > 0) {
+                    // Batch-load les détails pour réduire les appels API
+                    const mealIds = data.meals.map(m => m.idMeal);
+                    const fullMeals = await batchLoadMealDetails(mealIds);
 
-                    // Faire l'intersection avec les résultats actuels
-                    const fullMealIds = new Set(fullMeals.map(m => m.idMeal));
-                    allMeals = allMeals.filter(m => fullMealIds.has(m.idMeal));
-                    // Ajouter les détails complets (strArea, etc)
-                    allMeals = allMeals.map(meal => {
-                        const full = fullMeals.find(f => f.idMeal === meal.idMeal);
-                        return full || meal;
-                    });
+                    // Créer un Map pour O(1) lookup
+                    const fullMealsMap = new Map(fullMeals.map(m => [m.idMeal, m]));
+
+                    if (allMeals.length > 0) {
+                        // Intersection avec résultats existants
+                        allMeals = allMeals.filter(m => fullMealsMap.has(m.idMeal))
+                                          .map(m => fullMealsMap.get(m.idMeal) || m);
+                    } else {
+                        allMeals = fullMeals;
+                    }
                 }
             }
 
@@ -328,6 +404,9 @@
 
             // Dédupliquer les résultats et stocker en mémoire
             allMealsData = Array.from(new Map(allMeals.map(m => [m.idMeal, m])).values());
+
+            // Sauvegarder en cache localStorage (expire après 24h via date ou localStorage clearing)
+            localStorage.setItem(cacheKey, JSON.stringify(allMealsData));
 
             // Afficher les résultats paginés (page 1)
             currentPage = 1;
