@@ -132,7 +132,7 @@
                             // Afficher les badges
                             detailsDiv.innerHTML = `
                                 <span class="badge bg-info mb-2 align-self-start">${meal.strCategory || ''}</span>
-                                <span class="badge bg-secondary mb-2 align-self-start">${meal.strArea || ''}</span>
+                                <span class="badge bg-warning mb-2 align-self-start">${meal.strArea || ''}</span>
                             `;
 
                             // Ajouter les catégories et régions aux filtres

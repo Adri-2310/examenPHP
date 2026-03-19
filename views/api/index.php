@@ -148,7 +148,7 @@
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">${escapeHtml(meal.strMeal)}</h5>
                     <span class="badge bg-info mb-2 align-self-start">${escapeHtml(meal.strCategory)}</span>
-                    <p class="badge bg-secondary mb-2 align-self-start">${escapeHtml(meal.strArea)}</p>
+                    <p class="badge bg-warning mb-2 align-self-start">${escapeHtml(meal.strArea)}</p>
                     <p class="card-text small flex-grow-1">${escapeHtml(meal.strInstructions ? meal.strInstructions.substring(0, 100) : 'Pas de description')}...</p>
 
                     <form action="/favorites/add" method="POST" class="mt-auto">
