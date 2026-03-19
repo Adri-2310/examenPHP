@@ -416,29 +416,120 @@ class RecipesController extends Controller
                     if (!isset($erreur)) {
                         $ingredientsJson = json_encode($ingredientsArray);
 
-                        // 3. Mise à jour en base de données avec requête préparée
-                        try {
-                            $sql = "UPDATE recipes SET title = ?, description = ?, ingredients = ?, instructions = ? WHERE id = ?";
-                            $db = \App\Core\Db::getInstance();
-                            $stmt = $db->prepare($sql);
-                            $stmt->execute([$title, $description, $ingredientsJson, $instructions, $id]);
+                        // ===== GESTION DE L'UPLOAD D'IMAGE =====
+                        $image_url = null; // Par défaut : pas de nouvelle image
 
-                            // 4. message de succès
-                            $_SESSION['toasts'][] = [
-                                'type' => 'success',
-                                'message' => '✅ Recette modifiée avec succès !'
-                            ];
+                        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
 
-                            // 5. Redirection vers la page de détail de la recette
-                            header('Location: /recipes/lire/' . $id);
-                            exit;
-                        } catch (\PDOException $e) {
-                            // Erreur lors de la mise à jour
-                            ErrorHandler::logDatabaseError($e, 'modification recette (ID: ' . $id . ')', [
-                                'action' => 'recipes/edit',
-                                'method' => 'UPDATE'
-                            ]);
-                            $erreur = "❌ Erreur lors de la modification";
+                            // 3.1. Validation de la taille du fichier (limite à 5 MB)
+                            $maxSize = 5 * 1024 * 1024; // 5 MB
+                            if ($_FILES['image']['size'] > $maxSize) {
+                                $erreur = "L'image ne doit pas dépasser 5 MB";
+                            } else {
+                                try {
+                                    // 3.2. Vérification du type MIME réel (sécurité renforcée)
+                                    $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                                    $mimeType = $finfo->file($_FILES['image']['tmp_name']);
+                                    $mimes_autorises = ['image/jpeg', 'image/png', 'image/webp'];
+
+                                    if (!in_array($mimeType, $mimes_autorises)) {
+                                        $erreur = "Type de fichier non autorisé. Formats acceptés : JPG, PNG, WEBP";
+                                    } else {
+                                        // 3.3. Extraction et validation de l'extension
+                                        $extension = strtolower(pathinfo(basename($_FILES['image']['name']), PATHINFO_EXTENSION));
+                                        $extensions_autorisees = ['jpg', 'jpeg', 'png', 'webp'];
+
+                                        if (in_array($extension, $extensions_autorisees)) {
+
+                                            // 3.4. Chemin absolu vers le dossier d'upload
+                                            $dossierUpload = dirname(__DIR__, 2) . '/public/uploads/';
+
+                                            // 3.5. Création du dossier avec permissions sécurisées (755 au lieu de 777)
+                                            if (!is_dir($dossierUpload)) {
+                                                mkdir($dossierUpload, 0755, true);
+                                            }
+
+                                            // 3.6. Génération d'un nom unique pour éviter les collisions
+                                            $nomUnique = uniqid() . '.' . $extension;
+                                            $cheminComplet = $dossierUpload . $nomUnique;
+
+                                            // 3.7. Déplacement du fichier temporaire vers le dossier final
+                                            if (!move_uploaded_file($_FILES['image']['tmp_name'], $cheminComplet)) {
+                                                // Erreur de déplacement du fichier
+                                                ErrorHandler::logFileError(
+                                                    "Impossible de déplacer le fichier: {$_FILES['image']['tmp_name']} → {$cheminComplet}",
+                                                    'upload image',
+                                                    ['action' => 'recipes/edit']
+                                                );
+                                                $erreur = "❌ Erreur lors du téléchargement de l'image";
+                                            } else {
+                                                // Stockage du chemin relatif (pour l'affichage HTML)
+                                                $image_url = '/uploads/' . $nomUnique;
+                                            }
+                                        }
+                                    }
+                                } catch (\Exception $e) {
+                                    // Erreur lors de la vérification du MIME
+                                    ErrorHandler::logFileError(
+                                        $e->getMessage(),
+                                        'vérification image MIME',
+                                        ['action' => 'recipes/edit']
+                                    );
+                                    $erreur = "❌ Erreur lors de la vérification de l'image";
+                                }
+                            }
+                        }
+                        // ===== FIN UPLOAD =====
+
+                        // 4. Mise à jour en base de données avec requête préparée
+                        if (!isset($erreur)) {
+                            try {
+                                // Déterminer le SQL en fonction de la présence d'une nouvelle image
+                                if ($image_url !== null) {
+                                    // Une nouvelle image a été uploadée, supprimer l'ancienne
+                                    if (!empty($recette->image_url)) {
+                                        $cheminAncienne = dirname(__DIR__, 2) . '/public' . $recette->image_url;
+                                        if (file_exists($cheminAncienne)) {
+                                            @unlink($cheminAncienne);
+                                        }
+                                    }
+
+                                    $sql = "UPDATE recipes SET title = ?, description = ?, ingredients = ?, instructions = ?, image_url = ? WHERE id = ?";
+                                    $params = [$title, $description, $ingredientsJson, $instructions, $image_url, $id];
+                                } else {
+                                    // Pas de nouvelle image, garder l'ancienne
+                                    $sql = "UPDATE recipes SET title = ?, description = ?, ingredients = ?, instructions = ? WHERE id = ?";
+                                    $params = [$title, $description, $ingredientsJson, $instructions, $id];
+                                }
+
+                                $db = \App\Core\Db::getInstance();
+                                $stmt = $db->prepare($sql);
+                                $stmt->execute($params);
+
+                                // 5. message de succès
+                                $_SESSION['toasts'][] = [
+                                    'type' => 'success',
+                                    'message' => '✅ Recette modifiée avec succès !'
+                                ];
+
+                                // 6. Redirection vers la page de détail de la recette
+                                header('Location: /recipes/lire/' . $id);
+                                exit;
+                            } catch (\PDOException $e) {
+                                // Erreur lors de la mise à jour
+                                ErrorHandler::logDatabaseError($e, 'modification recette (ID: ' . $id . ')', [
+                                    'action' => 'recipes/edit',
+                                    'method' => 'UPDATE'
+                                ]);
+
+                                // Si upload d'image a réussi, le nettoyer
+                                if ($image_url) {
+                                    $cheminFichier = dirname(__DIR__, 2) . '/public' . $image_url;
+                                    @unlink($cheminFichier);
+                                }
+
+                                $erreur = "❌ Erreur lors de la modification";
+                            }
                         }
                     }
                 }
