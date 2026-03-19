@@ -39,11 +39,34 @@
 
     <div class="card shadow-sm p-4 mt-2 border-warning">
         <!-- Formulaire pré-rempli avec les données existantes -->
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             <div class="mb-3">
                 <label for="title" class="form-label">Titre de la recette</label>
                 <input type="text" class="form-control" id="title" name="title" value="<?= htmlspecialchars($recette->title) ?>" required>
+            </div>
+
+            <!-- Image actuelle et modification -->
+            <div class="mb-3">
+                <label class="form-label">Photo de la recette</label>
+
+                <!-- Afficher l'image actuelle si elle existe -->
+                <?php if($recette->image_url): ?>
+                    <div class="mb-2">
+                        <p class="text-muted small">Photo actuelle:</p>
+                        <img id="current-image" src="<?= htmlspecialchars($recette->image_url) ?>" alt="Photo actuelle" style="max-width: 200px; max-height: 200px; border-radius: 8px; object-fit: cover;">
+                    </div>
+                <?php endif; ?>
+
+                <!-- Champ pour remplacer l'image -->
+                <label class="form-label small text-muted">Changer la photo (optionnel):</label>
+                <input type="file" class="form-control" id="image" name="image" accept="image/png, image/jpeg, image/webp">
+
+                <!-- Aperçu de la nouvelle image -->
+                <div id="image-preview-container" style="display: none; margin-top: 1rem;">
+                    <p class="text-muted small">Nouvel aperçu:</p>
+                    <img id="image-preview" src="" alt="Aperçu de l'image" style="max-width: 200px; max-height: 200px; border-radius: 8px; object-fit: cover;">
+                </div>
             </div>
 
             <div class="mb-3">
@@ -66,3 +89,34 @@
         </form>
     </div>
 </div>
+
+<!-- Script pour l'aperçu d'image en édition -->
+<script>
+    const imageInput = document.getElementById('image');
+    const imagePreview = document.getElementById('image-preview');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+
+    /**
+     * Affiche un aperçu de la nouvelle image sélectionnée
+     */
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+
+        if (file) {
+            // Créer un URL local pour prévisualiser la nouvelle image
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                imagePreview.src = event.target.result;
+                imagePreviewContainer.style.display = 'block';
+            };
+
+            // Lire le fichier comme URL de données
+            reader.readAsDataURL(file);
+        } else {
+            // Cacher l'aperçu si aucun fichier n'est sélectionné
+            imagePreviewContainer.style.display = 'none';
+            imagePreview.src = '';
+        }
+    });
+</script>
