@@ -42,10 +42,10 @@
  */
 function loadModules() {
     const scripts = [
-        '/public/js/modules/IngredientManager.js',
-        '/public/js/modules/FormValidator.js',
-        '/public/js/modules/FavoriteToggler.js',
-        '/public/js/modules/PasswordToggler.js'
+        '/js/modules/IngredientManager.js',
+        '/js/modules/FormValidator.js',
+        '/js/modules/FavoriteToggler.js',
+        '/js/modules/PasswordToggler.js'
     ];
 
     scripts.forEach(src => {
