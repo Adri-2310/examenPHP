@@ -272,8 +272,14 @@ img {
 }
 
 .card:hover .card-img-top {
-    filter: brightness(1.1) scale(1.02);
-    transform: scale(1.02);
+    transform: scale(1.05);
+}
+
+/* Désactiver les animations sur mobiles (pas de hover) */
+@media (hover: none) {
+    .card:hover .card-img-top {
+        transform: none;
+    }
 }
 
 /* Image détail recette */
@@ -1014,7 +1020,8 @@ hr {
 }
 
 .badge:hover {
-    animation: pulse 1.5s ease-in-out infinite;
+    transform: scale(1.05);
+    transition: transform 0.2s ease-in-out;
 }
 
 /* Bounce animation pour les boutons suppression */
