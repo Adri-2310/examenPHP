@@ -9,21 +9,21 @@
 
 return [
     // Environnement d'exécution
-    'APP_ENV'           => 'development',
-    'APP_DEBUG'         => true,
-    'APP_URL'           => 'http://localhost',
+    'APP_ENV'           => 'production',
+    'APP_DEBUG'         => false,
+    'APP_URL'           => 'https://votre-domaine.com',
 
     // Logging et erreurs
-    'LOG_LEVEL'         => 'debug',              // Logs détaillés
+    'LOG_LEVEL'         => 'error',              // Logs erreurs seulement
     'LOG_PATH'          => ROOT . '/logs/errors.log',
-    'DISPLAY_ERRORS'    => true,                // Afficher les erreurs
-    'DB_SHOW_DETAILS'   => true,                // Afficher détails erreurs BD
+    'DISPLAY_ERRORS'    => false,               // Ne pas afficher les erreurs
+    'DB_SHOW_DETAILS'   => false,               // Ne pas afficher détails erreurs BD
 
     // Sécurité
-    'SESSION_SECURE'    => false,               // Pas de HTTPS en local
-    'HSTS_ENABLED'      => false,               // HSTS désactivé en dev
+    'SESSION_SECURE'    => true,                // HTTPS requis
+    'HSTS_ENABLED'      => true,                // HSTS activé en prod
 
     // Uploads
-    'UPLOAD_MAX_SIZE'   => 5 * 1024 * 1024,    // 5 MB en dev
+    'UPLOAD_MAX_SIZE'   => 2 * 1024 * 1024,    // 2 MB en prod
     'UPLOAD_PATH'       => ROOT . '/public/uploads/',
 ];
