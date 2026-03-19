@@ -59,7 +59,7 @@
         </nav>
 
         <!-- Spinner de chargement -->
-        <div id="loading-spinner" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+        <div id="loading-spinner" style="display: flex; justify-content: center; align-items: center; min-height: 400px;">
             <div class="text-center">
                 <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
                     <span class="visually-hidden">Chargement...</span>
@@ -205,7 +205,7 @@
 
                 // Cacher le spinner dès qu'on affiche les favoris
                 if (loadingSpinner) {
-                    loadingSpinner.style.display = 'none !important';
+                    loadingSpinner.style.display = 'none';
                 }
 
                 // Calculer les indices
@@ -300,12 +300,18 @@
             areaFilter.addEventListener('change', applyFilters);
 
             // Charger les détails et afficher les favoris paginés au chargement de la page
-            document.addEventListener('DOMContentLoaded', async () => {
+            async function initFavorites() {
                 await loadFavoritesDetails();
                 // Afficher la première page des favoris (le spinner se masquera automatiquement)
                 const allCards = Array.from(favoriteCards);
                 displayPaginatedFavorites(allCards, 1);
-            });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initFavorites);
+            } else {
+                initFavorites(); // DOM déjà prêt, on lance directement
+            }
         </script>
     <?php endif; ?>
 </div>
