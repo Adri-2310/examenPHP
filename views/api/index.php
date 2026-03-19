@@ -38,9 +38,25 @@
     </div>
 
     <!-- Barre de recherche -->
-    <div class="input-group mb-4 shadow-sm">
+    <div class="input-group mb-3 shadow-sm">
         <input type="text" id="search-input" class="form-control form-control-lg" placeholder="Ex: Pizza, Beef, Chocolate...">
         <button class="btn btn-primary btn-lg" id="search-btn">🔍 Rechercher</button>
+    </div>
+
+    <!-- Filtres (Catégorie et Région) -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label for="category-filter" class="form-label">Catégorie</label>
+            <select class="form-select" id="category-filter">
+                <option value="">-- Toutes les catégories --</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="area-filter" class="form-label">Région</label>
+            <select class="form-select" id="area-filter">
+                <option value="">-- Toutes les régions --</option>
+            </select>
+        </div>
     </div>
 
     <!-- Zone d'affichage des résultats (remplie par JavaScript) -->
@@ -57,64 +73,193 @@
         div.textContent = text;
         return div.innerHTML;
     }
-    // 1. ON DÉCLARE LE TOKEN EN HAUT, PROPREMENT
-    // PHP va écrire la valeur ici une seule fois
-    const csrfToken = "<?= $_SESSION['csrf_token'] ?>";
 
+    const csrfToken = "<?= $_SESSION['csrf_token'] ?>";
     const searchBtn = document.getElementById('search-btn');
     const searchInput = document.getElementById('search-input');
+    const categoryFilter = document.getElementById('category-filter');
+    const areaFilter = document.getElementById('area-filter');
     const resultsArea = document.getElementById('results-area');
 
-    searchBtn.addEventListener('click', async () => {
+    /**
+     * Charge les catégories disponibles via endpoint PHP
+     */
+    async function loadCategories() {
+        try {
+            const response = await fetch('/api/getCategories');
+            const data = await response.json();
+
+            if (data.meals) {
+                data.meals.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.strCategory;
+                    option.textContent = cat.strCategory;
+                    categoryFilter.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des catégories:', error);
+        }
+    }
+
+    /**
+     * Charge les régions (areas) disponibles via endpoint PHP
+     */
+    async function loadAreas() {
+        try {
+            const response = await fetch('/api/getAreas');
+            const data = await response.json();
+
+            if (data.meals) {
+                data.meals.forEach(area => {
+                    const option = document.createElement('option');
+                    option.value = area.strArea;
+                    option.textContent = area.strArea;
+                    areaFilter.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des régions:', error);
+        }
+    }
+
+    /**
+     * Affiche une recette dans la grille de résultats
+     */
+    function displayMeal(meal) {
+        const col = document.createElement('div');
+        col.className = 'col-md-4 mb-4';
+
+        col.innerHTML = `
+            <div class="card h-100 shadow-sm">
+                <img src="${meal.strMealThumb}" class="card-img-top" alt="${meal.strMeal}" loading="lazy">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">${escapeHtml(meal.strMeal)}</h5>
+                    <span class="badge bg-info mb-2 align-self-start">${escapeHtml(meal.strCategory)}</span>
+                    <p class="badge bg-secondary mb-2 align-self-start">${escapeHtml(meal.strArea)}</p>
+                    <p class="card-text small flex-grow-1">${escapeHtml(meal.strInstructions ? meal.strInstructions.substring(0, 100) : 'Pas de description')}...</p>
+
+                    <form action="/favorites/add" method="POST" class="mt-auto">
+                        <input type="hidden" name="csrf_token" value="${csrfToken}">
+                        <input type="hidden" name="id_api" value="${escapeHtml(meal.idMeal)}">
+                        <input type="hidden" name="titre" value="${escapeHtml(meal.strMeal)}">
+                        <input type="hidden" name="image_url" value="${escapeHtml(meal.strMealThumb)}">
+                        <button type="submit" class="btn btn-danger w-100">
+                            ❤️ Ajouter à mes favoris
+                        </button>
+                    </form>
+                </div>
+            </div>
+        `;
+        resultsArea.appendChild(col);
+    }
+
+    /**
+     * Effectue la recherche en combinant texte + filtres
+     */
+    async function search() {
         const query = searchInput.value.trim();
-        if(!query) return;
+        const category = categoryFilter.value;
+        const area = areaFilter.value;
+
+        // Vérifier qu'au moins un critère est fourni
+        if (!query && !category && !area) {
+            alert('Entrez une recherche ou sélectionnez une catégorie/région');
+            return;
+        }
 
         resultsArea.innerHTML = '<div class="text-center mt-5"><div class="spinner-border text-primary"></div><p>Recherche...</p></div>';
 
         try {
-            const response = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`);
-            const data = await response.json();
+            let allMeals = [];
+
+            // 1. Recherche par texte (si fourni)
+            if (query) {
+                const response = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                if (data.meals) allMeals = data.meals;
+            }
+
+            // 2. Filtre par catégorie (si fourni)
+            if (category) {
+                const response = await fetch(`/api/filterByCategory/${encodeURIComponent(category)}`);
+                const data = await response.json();
+                if (data.meals) {
+                    // Charger les détails complets pour avoir strCategory et strArea
+                    const detailPromises = data.meals.map(meal =>
+                        fetch(`/api/getMealDetails/${meal.idMeal}`).then(r => r.json())
+                    );
+                    const details = await Promise.all(detailPromises);
+                    const fullMeals = details.map(d => d.meals && d.meals[0]).filter(Boolean);
+
+                    // Si on a déjà des résultats de recherche texte, faire l'intersection
+                    if (allMeals.length > 0) {
+                        const fullMealIds = new Set(fullMeals.map(m => m.idMeal));
+                        allMeals = allMeals.filter(m => fullMealIds.has(m.idMeal));
+                        // Ajouter les détails complets (strArea, etc)
+                        allMeals = allMeals.map(meal => {
+                            const full = fullMeals.find(f => f.idMeal === meal.idMeal);
+                            return full || meal;
+                        });
+                    } else {
+                        allMeals = fullMeals;
+                    }
+                }
+            }
+
+            // 3. Filtre par région (si fourni)
+            if (area) {
+                const response = await fetch(`/api/filterByArea/${encodeURIComponent(area)}`);
+                const data = await response.json();
+                if (data.meals) {
+                    // Charger les détails complets pour avoir strCategory et strArea
+                    const detailPromises = data.meals.map(meal =>
+                        fetch(`/api/getMealDetails/${meal.idMeal}`).then(r => r.json())
+                    );
+                    const details = await Promise.all(detailPromises);
+                    const fullMeals = details.map(d => d.meals && d.meals[0]).filter(Boolean);
+
+                    // Faire l'intersection avec les résultats actuels
+                    const fullMealIds = new Set(fullMeals.map(m => m.idMeal));
+                    allMeals = allMeals.filter(m => fullMealIds.has(m.idMeal));
+                    // Ajouter les détails complets (strArea, etc)
+                    allMeals = allMeals.map(meal => {
+                        const full = fullMeals.find(f => f.idMeal === meal.idMeal);
+                        return full || meal;
+                    });
+                }
+            }
 
             resultsArea.innerHTML = '';
 
-            if (data.meals) {
-                data.meals.forEach(meal => {
-                    const col = document.createElement('div');
-                    col.className = 'col-md-4 mb-4';
-                    
-                    // 2. ON UTILISE LA VARIABLE JS ${csrfToken} (plus de PHP ici !)
-                    col.innerHTML = `
-                        <div class="card h-100 shadow-sm">
-                            <img src="${meal.strMealThumb}" class="card-img-top" alt="${meal.strMeal}" loading="lazy">
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title">${escapeHtml(meal.strMeal)}</h5>
-                                <span class="badge bg-info mb-2 align-self-start">${escapeHtml(meal.strCategory)}</span>
-                                <p class="card-text small flex-grow-1">${escapeHtml(meal.strInstructions.substring(0, 100))}...</p>
-
-                                <form action="/favorites/add" method="POST" class="mt-auto">
-                                    <input type="hidden" name="csrf_token" value="${csrfToken}">
-                                    <input type="hidden" name="id_api" value="${escapeHtml(meal.idMeal)}">
-                                    <input type="hidden" name="titre" value="${escapeHtml(meal.strMeal)}">
-                                    <input type="hidden" name="image_url" value="${escapeHtml(meal.strMealThumb)}">
-                                    <button type="submit" class="btn btn-danger w-100">
-                                        ❤️ Ajouter à mes favoris
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    `;
-                    resultsArea.appendChild(col);
-                });
-            } else {
+            if (allMeals.length === 0) {
                 resultsArea.innerHTML = '<div class="alert alert-warning w-100 text-center">Aucune recette trouvée.</div>';
+                return;
             }
+
+            // Dédupliquer les résultats
+            const uniqueMeals = Array.from(new Map(allMeals.map(m => [m.idMeal, m])).values());
+
+            // Afficher les résultats
+            uniqueMeals.forEach(meal => displayMeal(meal));
+
         } catch (error) {
             console.error(error);
             resultsArea.innerHTML = '<div class="alert alert-danger w-100 text-center">Erreur API.</div>';
         }
-    });
+    }
 
+    // Événements
+    searchBtn.addEventListener('click', search);
     searchInput.addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') searchBtn.click();
+        if (e.key === 'Enter') search();
+    });
+    categoryFilter.addEventListener('change', search);
+    areaFilter.addEventListener('change', search);
+
+    // Charger catégories et régions au chargement de la page
+    document.addEventListener('DOMContentLoaded', () => {
+        loadCategories();
+        loadAreas();
     });
 </script>
