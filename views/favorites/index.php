@@ -58,6 +58,16 @@
             <ul class="pagination" id="fav-pagination"></ul>
         </nav>
 
+        <!-- Spinner de chargement -->
+        <div id="loading-spinner" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Chargement...</span>
+                </div>
+                <p class="text-muted mt-3">Chargement de vos favoris...</p>
+            </div>
+        </div>
+
         <div class="row" id="favorites-container">
             <?php foreach($favoris as $fav): ?>
                 <div class="col-md-4 mb-4 favorite-card" data-id-api="<?= $fav->id_api ?>" data-fav-id="<?= $fav->id ?>" style="display: none;">
@@ -100,6 +110,8 @@
             const paginationBottomContainer = document.getElementById('fav-pagination-container-bottom');
             const paginationUl = document.getElementById('fav-pagination');
             const paginationUlBottom = document.getElementById('fav-pagination-bottom');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const favoritesContainer = document.getElementById('favorites-container');
 
             // Variables pour la pagination
             let currentPage = 1;
@@ -190,6 +202,11 @@
              */
             function displayPaginatedFavorites(cardsToShow, page) {
                 currentPage = page;
+
+                // Cacher le spinner dès qu'on affiche les favoris
+                if (loadingSpinner) {
+                    loadingSpinner.style.display = 'none !important';
+                }
 
                 // Calculer les indices
                 const startIndex = (page - 1) * itemsPerPage;
@@ -285,7 +302,7 @@
             // Charger les détails et afficher les favoris paginés au chargement de la page
             document.addEventListener('DOMContentLoaded', async () => {
                 await loadFavoritesDetails();
-                // Afficher la première page des favoris
+                // Afficher la première page des favoris (le spinner se masquera automatiquement)
                 const allCards = Array.from(favoriteCards);
                 displayPaginatedFavorites(allCards, 1);
             });
