@@ -61,6 +61,11 @@
 
     <!-- Zone d'affichage des résultats (remplie par JavaScript) -->
     <div class="row" id="results-area"></div>
+
+    <!-- Barre de pagination -->
+    <nav id="pagination-container" class="d-flex justify-content-center mt-4" style="display: none;">
+        <ul class="pagination" id="pagination"></ul>
+    </nav>
 </div>
 
 <!-- Script de recherche API (AJAX avec fetch) -->
@@ -80,6 +85,13 @@
     const categoryFilter = document.getElementById('category-filter');
     const areaFilter = document.getElementById('area-filter');
     const resultsArea = document.getElementById('results-area');
+    const paginationContainer = document.getElementById('pagination-container');
+    const paginationUl = document.getElementById('pagination');
+
+    // Variables pour la pagination
+    let allMealsData = []; // Tous les résultats
+    let currentPage = 1;
+    const itemsPerPage = 9;
 
     /**
      * Charge les catégories disponibles via endpoint PHP
@@ -152,6 +164,84 @@
             </div>
         `;
         resultsArea.appendChild(col);
+    }
+
+    /**
+     * Affiche les résultats paginés et met à jour la barre de pagination
+     */
+    function displayPaginatedResults(page = 1) {
+        currentPage = page;
+        resultsArea.innerHTML = '';
+
+        // Calculer les indices de début et fin
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const mealsToShow = allMealsData.slice(startIndex, endIndex);
+
+        // Afficher les recettes de cette page
+        mealsToShow.forEach(meal => displayMeal(meal));
+
+        // Mettre à jour la pagination
+        updatePagination();
+
+        // Scroll vers le haut
+        window.scrollTo({ top: resultsArea.offsetTop - 100, behavior: 'smooth' });
+    }
+
+    /**
+     * Crée et affiche la barre de pagination
+     */
+    function updatePagination() {
+        paginationUl.innerHTML = '';
+
+        const totalPages = Math.ceil(allMealsData.length / itemsPerPage);
+
+        // Bouton précédent
+        const prevLi = document.createElement('li');
+        prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+        const prevLink = document.createElement('a');
+        prevLink.className = 'page-link';
+        prevLink.href = '#';
+        prevLink.textContent = 'Précédent';
+        prevLink.onclick = (e) => {
+            e.preventDefault();
+            if (currentPage > 1) displayPaginatedResults(currentPage - 1);
+        };
+        prevLi.appendChild(prevLink);
+        paginationUl.appendChild(prevLi);
+
+        // Numéros de pages
+        for (let i = 1; i <= totalPages; i++) {
+            const li = document.createElement('li');
+            li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+            const link = document.createElement('a');
+            link.className = 'page-link';
+            link.href = '#';
+            link.textContent = i;
+            link.onclick = (e) => {
+                e.preventDefault();
+                displayPaginatedResults(i);
+            };
+            li.appendChild(link);
+            paginationUl.appendChild(li);
+        }
+
+        // Bouton suivant
+        const nextLi = document.createElement('li');
+        nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+        const nextLink = document.createElement('a');
+        nextLink.className = 'page-link';
+        nextLink.href = '#';
+        nextLink.textContent = 'Suivant';
+        nextLink.onclick = (e) => {
+            e.preventDefault();
+            if (currentPage < totalPages) displayPaginatedResults(currentPage + 1);
+        };
+        nextLi.appendChild(nextLink);
+        paginationUl.appendChild(nextLi);
+
+        // Montrer/cacher le conteneur de pagination
+        paginationContainer.style.display = totalPages > 1 ? '' : 'none';
     }
 
     /**
@@ -230,18 +320,18 @@
                 }
             }
 
-            resultsArea.innerHTML = '';
-
             if (allMeals.length === 0) {
                 resultsArea.innerHTML = '<div class="alert alert-warning w-100 text-center">Aucune recette trouvée.</div>';
+                paginationContainer.style.display = 'none';
                 return;
             }
 
-            // Dédupliquer les résultats
-            const uniqueMeals = Array.from(new Map(allMeals.map(m => [m.idMeal, m])).values());
+            // Dédupliquer les résultats et stocker en mémoire
+            allMealsData = Array.from(new Map(allMeals.map(m => [m.idMeal, m])).values());
 
-            // Afficher les résultats
-            uniqueMeals.forEach(meal => displayMeal(meal));
+            // Afficher les résultats paginés (page 1)
+            currentPage = 1;
+            displayPaginatedResults(1);
 
         } catch (error) {
             console.error(error);

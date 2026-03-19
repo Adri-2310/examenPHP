@@ -53,9 +53,14 @@
             </div>
         </div>
 
+        <!-- Barre de pagination -->
+        <nav id="fav-pagination-container" class="d-flex justify-content-center mb-4" style="display: none;">
+            <ul class="pagination" id="fav-pagination"></ul>
+        </nav>
+
         <div class="row" id="favorites-container">
             <?php foreach($favoris as $fav): ?>
-                <div class="col-md-4 mb-4 favorite-card" data-id-api="<?= $fav->id_api ?>" data-fav-id="<?= $fav->id ?>">
+                <div class="col-md-4 mb-4 favorite-card" data-id-api="<?= $fav->id_api ?>" data-fav-id="<?= $fav->id ?>" style="display: none;">
                     <div class="card h-100 shadow-sm">
                         <img src="<?= $fav->image_url ?>" class="card-img-top" alt="<?= htmlspecialchars($fav->titre) ?>" loading="lazy">
 
@@ -81,11 +86,24 @@
             <?php endforeach; ?>
         </div>
 
-        <!-- Script de gestion des filtres pour les favoris -->
+        <!-- Barre de pagination (bas) -->
+        <nav id="fav-pagination-container-bottom" class="d-flex justify-content-center mt-4" style="display: none;">
+            <ul class="pagination" id="fav-pagination-bottom"></ul>
+        </nav>
+
+        <!-- Script de gestion des filtres et pagination pour les favoris -->
         <script>
             const categoryFilter = document.getElementById('fav-category-filter');
             const areaFilter = document.getElementById('fav-area-filter');
             const favoriteCards = document.querySelectorAll('.favorite-card');
+            const paginationContainer = document.getElementById('fav-pagination-container');
+            const paginationBottomContainer = document.getElementById('fav-pagination-container-bottom');
+            const paginationUl = document.getElementById('fav-pagination');
+            const paginationUlBottom = document.getElementById('fav-pagination-bottom');
+
+            // Variables pour la pagination
+            let currentPage = 1;
+            const itemsPerPage = 9;
 
             // Objet pour stocker les détails des favoris
             const favoritesData = {};
@@ -143,35 +161,134 @@
             }
 
             /**
-             * Filtre les favoris affichés selon les critères sélectionnés
+             * Filtre les favoris selon les critères sélectionnés
              */
             function applyFilters() {
                 const selectedCategory = categoryFilter.value;
                 const selectedArea = areaFilter.value;
 
-                favoriteCards.forEach(card => {
+                // Obtenir les cartes filtrées (non cachées par les filtres)
+                const filteredCards = Array.from(favoriteCards).filter(card => {
                     const idApi = card.dataset.idApi;
                     const details = favoritesData[idApi];
 
-                    if (!details) {
-                        card.style.display = 'none';
-                        return;
-                    }
+                    if (!details) return false;
 
-                    // Vérifier si la recette correspond aux filtres sélectionnés
                     const matchCategory = !selectedCategory || details.category === selectedCategory;
                     const matchArea = !selectedArea || details.area === selectedArea;
 
-                    card.style.display = (matchCategory && matchArea) ? '' : 'none';
+                    return matchCategory && matchArea;
                 });
+
+                // Réinitialiser à la page 1 et afficher
+                currentPage = 1;
+                displayPaginatedFavorites(filteredCards, 1);
+            }
+
+            /**
+             * Affiche les favoris paginés
+             */
+            function displayPaginatedFavorites(cardsToShow, page) {
+                currentPage = page;
+
+                // Calculer les indices
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+
+                // Cacher tous les favoris
+                favoriteCards.forEach(card => {
+                    card.style.display = 'none';
+                });
+
+                // Afficher seulement ceux de la page
+                cardsToShow.slice(startIndex, endIndex).forEach(card => {
+                    card.style.display = '';
+                });
+
+                // Mettre à jour la pagination
+                updatePaginationFavorites(cardsToShow);
+
+                // Scroll vers le haut
+                window.scrollTo({ top: document.querySelector('.d-flex.justify-content-between').offsetTop - 100, behavior: 'smooth' });
+            }
+
+            /**
+             * Met à jour les barres de pagination des favoris
+             */
+            function updatePaginationFavorites(cardsToShow) {
+                paginationUl.innerHTML = '';
+                paginationUlBottom.innerHTML = '';
+
+                const totalPages = Math.ceil(cardsToShow.length / itemsPerPage);
+
+                // Fonction pour créer la pagination
+                const createPaginationButtons = (paginationElement) => {
+                    // Bouton précédent
+                    const prevLi = document.createElement('li');
+                    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                    const prevLink = document.createElement('a');
+                    prevLink.className = 'page-link';
+                    prevLink.href = '#';
+                    prevLink.textContent = 'Précédent';
+                    prevLink.onclick = (e) => {
+                        e.preventDefault();
+                        if (currentPage > 1) displayPaginatedFavorites(cardsToShow, currentPage - 1);
+                    };
+                    prevLi.appendChild(prevLink);
+                    paginationElement.appendChild(prevLi);
+
+                    // Numéros de pages
+                    for (let i = 1; i <= totalPages; i++) {
+                        const li = document.createElement('li');
+                        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                        const link = document.createElement('a');
+                        link.className = 'page-link';
+                        link.href = '#';
+                        link.textContent = i;
+                        link.onclick = (e) => {
+                            e.preventDefault();
+                            displayPaginatedFavorites(cardsToShow, i);
+                        };
+                        li.appendChild(link);
+                        paginationElement.appendChild(li);
+                    }
+
+                    // Bouton suivant
+                    const nextLi = document.createElement('li');
+                    nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+                    const nextLink = document.createElement('a');
+                    nextLink.className = 'page-link';
+                    nextLink.href = '#';
+                    nextLink.textContent = 'Suivant';
+                    nextLink.onclick = (e) => {
+                        e.preventDefault();
+                        if (currentPage < totalPages) displayPaginatedFavorites(cardsToShow, currentPage + 1);
+                    };
+                    nextLi.appendChild(nextLink);
+                    paginationElement.appendChild(nextLi);
+                };
+
+                // Remplir les deux barres de pagination
+                createPaginationButtons(paginationUl);
+                createPaginationButtons(paginationUlBottom);
+
+                // Montrer/cacher les conteneurs de pagination
+                const showPagination = totalPages > 1;
+                paginationContainer.style.display = showPagination ? '' : 'none';
+                paginationBottomContainer.style.display = showPagination ? '' : 'none';
             }
 
             // Événements
             categoryFilter.addEventListener('change', applyFilters);
             areaFilter.addEventListener('change', applyFilters);
 
-            // Charger les détails au chargement de la page
-            document.addEventListener('DOMContentLoaded', loadFavoritesDetails);
+            // Charger les détails et afficher les favoris paginés au chargement de la page
+            document.addEventListener('DOMContentLoaded', async () => {
+                await loadFavoritesDetails();
+                // Afficher la première page des favoris
+                const allCards = Array.from(favoriteCards);
+                displayPaginatedFavorites(allCards, 1);
+            });
         </script>
     <?php endif; ?>
 </div>
