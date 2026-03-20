@@ -233,4 +233,193 @@ class ApiController extends Controller
             'titre' => $recette->title
         ]);
     }
+
+    /**
+     * Récupère la liste des catégories depuis TheMealDB
+     * Endpoint AJAX pour contourner les problèmes CORS
+     */
+    public function getCategories()
+    {
+        header('Content-Type: application/json');
+
+        try {
+            $context = stream_context_create([
+                'http' => ['timeout' => 5]
+            ]);
+
+            $response = file_get_contents(
+                'https://www.themealdb.com/api/json/v1/1/list.php?c=list',
+                false,
+                $context
+            );
+
+            if ($response === false) {
+                throw new \Exception('Impossible de contacter TheMealDB');
+            }
+
+            $data = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('JSON invalide');
+            }
+
+            echo json_encode($data);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Récupère la liste des régions depuis TheMealDB
+     * Endpoint AJAX pour contourner les problèmes CORS
+     */
+    public function getAreas()
+    {
+        header('Content-Type: application/json');
+
+        try {
+            $context = stream_context_create([
+                'http' => ['timeout' => 5]
+            ]);
+
+            $response = file_get_contents(
+                'https://www.themealdb.com/api/json/v1/1/list.php?a=list',
+                false,
+                $context
+            );
+
+            if ($response === false) {
+                throw new \Exception('Impossible de contacter TheMealDB');
+            }
+
+            $data = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('JSON invalide');
+            }
+
+            echo json_encode($data);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Filtre les recettes par catégorie
+     * Endpoint AJAX pour contourner les problèmes CORS
+     */
+    public function filterByCategory($category)
+    {
+        header('Content-Type: application/json');
+
+        if (empty($category)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Catégorie requise']);
+            return;
+        }
+
+        try {
+            $context = stream_context_create([
+                'http' => ['timeout' => 5]
+            ]);
+
+            $url = 'https://www.themealdb.com/api/json/v1/1/filter.php?c=' . urlencode($category);
+            $response = file_get_contents($url, false, $context);
+
+            if ($response === false) {
+                throw new \Exception('Impossible de contacter TheMealDB');
+            }
+
+            $data = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('JSON invalide');
+            }
+
+            echo json_encode($data);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Filtre les recettes par région
+     * Endpoint AJAX pour contourner les problèmes CORS
+     */
+    public function filterByArea($area)
+    {
+        header('Content-Type: application/json');
+
+        if (empty($area)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Région requise']);
+            return;
+        }
+
+        try {
+            $context = stream_context_create([
+                'http' => ['timeout' => 5]
+            ]);
+
+            $url = 'https://www.themealdb.com/api/json/v1/1/filter.php?a=' . urlencode($area);
+            $response = file_get_contents($url, false, $context);
+
+            if ($response === false) {
+                throw new \Exception('Impossible de contacter TheMealDB');
+            }
+
+            $data = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('JSON invalide');
+            }
+
+            echo json_encode($data);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Récupère les détails complets d'une recette par ID
+     * Endpoint AJAX pour contourner les problèmes CORS
+     */
+    public function getMealDetails($idMeal)
+    {
+        header('Content-Type: application/json');
+
+        if (empty($idMeal) || !is_numeric($idMeal)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'ID recette invalide']);
+            return;
+        }
+
+        try {
+            $context = stream_context_create([
+                'http' => ['timeout' => 5]
+            ]);
+
+            $url = 'https://www.themealdb.com/api/json/v1/1/lookup.php?i=' . intval($idMeal);
+            $response = file_get_contents($url, false, $context);
+
+            if ($response === false) {
+                throw new \Exception('Impossible de contacter TheMealDB');
+            }
+
+            $data = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('JSON invalide');
+            }
+
+            echo json_encode($data);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
 }

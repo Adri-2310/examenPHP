@@ -31,9 +31,6 @@ namespace App\Core;
 use PDO;
 use PDOException;
 
-// Charger les variables d'environnement depuis le fichier .env
-$env = parse_ini_file(__DIR__ . '/../../.env') ?: [];
-
 class Db extends PDO
 {
     /**
@@ -67,11 +64,11 @@ class Db extends PDO
     private static $dbname;
 
     /**
-     * Charge les paramètres de connexion depuis le fichier .env
+     * Charge les paramètres de connexion depuis $_ENV
      *
      * Cette méthode privée charge les variables d'environnement qui ont été
-     * lues au début du fichier. Elle fournit des valeurs par défaut si les
-     * variables ne sont pas définies.
+     * chargées dans $_ENV par public/index.php au démarrage de l'application.
+     * Elle fournit des valeurs par défaut si les variables ne sont pas définies.
      *
      * Valeurs par défaut (si .env absent) :
      * - DB_HOST : localhost
@@ -81,15 +78,14 @@ class Db extends PDO
      *
      * @return void
      *
-     * @note Cette méthode utilise la variable globale $env
+     * @note Lit depuis $_ENV (chargé centralement dans public/index.php)
      */
     private static function loadConfig(): void
     {
-        global $env;
-        self::$dbhost = $env['DB_HOST'] ?? 'localhost';
-        self::$dbuser = $env['DB_USER'] ?? 'root';
-        self::$dbpass = $env['DB_PASS'] ?? '';
-        self::$dbname = $env['DB_NAME'] ?? 'examenphp';
+        self::$dbhost = $_ENV['DB_HOST'] ?? 'localhost';
+        self::$dbuser = $_ENV['DB_USER'] ?? 'root';
+        self::$dbpass = $_ENV['DB_PASS'] ?? '';
+        self::$dbname = $_ENV['DB_NAME'] ?? 'examenphp';
     }
 
     /**

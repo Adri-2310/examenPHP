@@ -62,7 +62,7 @@ function loadModules() {
  * SÉQUENCE D'INITIALISATION:
  * 1. ThemeToggle - Applique immédiatement le thème sauvegardé
  * 2. loadModules() - Lance le chargement asynchrone des modules
- * 3. setTimeout(100ms) - Attend que les modules soient chargés
+ * 3. setTimeout(50ms) - Attend que les modules soient chargés (optimisé)
  * 4. Initialise les modules selon le contexte de la page
  *
  * @event DOMContentLoaded
@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadModules();
 
     // 3️⃣ INITIALISATION DES MODULES
-    // Attend 100ms pour que les modules se chargent avant initialisation
+    // Attend 50ms pour que les modules se chargent avant initialisation (optimisé)
     // Note: Un timing trop court peut causer des erreurs "undefined"
     setTimeout(() => {
         // ===== MODULE 1: Gestion des ingrédients =====
@@ -117,5 +117,5 @@ document.addEventListener('DOMContentLoaded', () => {
             console.debug('[Main] PasswordToggler initialisé');
         }
 
-    }, 100); // Délai d'attente pour le chargement des scripts
+    }, 50); // Délai d'attente réduit pour chargement plus rapide des modules
 });

@@ -21,18 +21,47 @@
  * @author     Projet Examen PHP
  * @created    2026
  */
-// Headers de sécurité
-header("X-Frame-Options: DENY");
-header("X-Content-Type-Options: nosniff");
-header("X-XSS-Protection: 1; mode=block");
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https:;");
-header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
-header("Referrer-Policy: strict-origin-when-cross-origin");
-
 // ===== ÉTAPE 1 : DÉFINITION DU DOSSIER RACINE =====
 // Permet d'utiliser des chemins absolus dans toute l'application
 // dirname(__DIR__) remonte d'un niveau : /public → /
 define('ROOT', dirname(__DIR__));
+
+// ===== ÉTAPE 1.5 : CHARGEMENT CENTRALISÉ DE LA CONFIGURATION =====
+// Charge le .env dans $_ENV et définit les constantes d'environnement
+// Permet une configuration unifiée et cohérente entre develop/main
+
+// Charger le fichier .env dans $_ENV
+$env = @parse_ini_file(ROOT . '/.env') ?: [];
+foreach ($env as $key => $value) {
+    $_ENV[$key] = $value;
+}
+
+// Charger la configuration par environnement (varie entre develop et main)
+$appConfig = require ROOT . '/config/app.php';
+
+// Définir les constantes d'environnement (utilisées partout dans l'app)
+define('APP_ENV', $_ENV['APP_ENV'] ?? $appConfig['APP_ENV']);
+define('APP_DEBUG', APP_ENV === 'development');
+
+// Configuration PHP selon l'environnement
+if (APP_DEBUG) {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 0);
+    error_reporting(0);
+}
+
+// ===== HEADERS DE SÉCURITÉ (différenciés par environnement) =====
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("X-XSS-Protection: 1; mode=block");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https:;");
+// HSTS seulement en production (HTTPS requis)
+if (!APP_DEBUG) {
+    header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+}
+header("Referrer-Policy: strict-origin-when-cross-origin");
 
 // ===== ÉTAPE 2 : DÉMARRAGE DE LA SESSION =====
 // Obligatoire pour :

@@ -56,6 +56,11 @@
             <div class="mb-3">
                 <label for="image" class="form-label">Photo de la recette (Optionnel)</label>
                 <input type="file" class="form-control" id="image" name="image" accept="image/png, image/jpeg, image/webp">
+
+                <!-- Aperçu de l'image -->
+                <div id="image-preview-container" style="display: none; margin-top: 1rem;">
+                    <img id="image-preview" src="" alt="Aperçu de l'image" style="max-width: 100%; max-height: 300px; border-radius: 8px; object-fit: cover;">
+                </div>
             </div>
 
             <div class="mb-3">
@@ -79,3 +84,34 @@
         </form>
     </div>
 </div>
+
+<!-- Script pour l'aperçu d'image -->
+<script>
+    const imageInput = document.getElementById('image');
+    const imagePreview = document.getElementById('image-preview');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+
+    /**
+     * Affiche un aperçu de l'image sélectionnée
+     */
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+
+        if (file) {
+            // Créer un URL local pour prévisualiser l'image
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                imagePreview.src = event.target.result;
+                imagePreviewContainer.style.display = 'block';
+            };
+
+            // Lire le fichier comme URL de données
+            reader.readAsDataURL(file);
+        } else {
+            // Cacher l'aperçu si aucun fichier n'est sélectionné
+            imagePreviewContainer.style.display = 'none';
+            imagePreview.src = '';
+        }
+    });
+</script>

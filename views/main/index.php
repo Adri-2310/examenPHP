@@ -86,9 +86,10 @@
                     
                     <div class="card-body">
                         <h5 class="card-title"><?= $recette['strMeal'] ?></h5>
-                        <p class="badge bg-info text-dark"><?= $recette['strCategory'] ?></p>
+                        <p class="badge bg-info mb-2"><?= $recette['strCategory'] ?></p>
+                        <p class="badge bg-warning mb-2"><?= $recette['strArea'] ?></p>
                         <p class="card-text small text-muted">
-                            Origine : <?= $recette['strArea'] ?>
+                            Origine
                         </p>
                         
                         <!-- Bouton favori AJAX (seulement si connecté) -->

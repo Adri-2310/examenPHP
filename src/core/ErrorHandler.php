@@ -371,9 +371,14 @@ class ErrorHandler
      * @param bool $showDetails     Afficher les détails techniques
      * @return void                 Exit
      */
-    public static function displayDatabaseErrorPage(\Exception $exception, string $action = 'Opération', bool $showDetails = false): void
+    public static function displayDatabaseErrorPage(\Exception $exception, string $action = 'Opération', ?bool $showDetails = null): void
     {
         http_response_code(500);
+
+        // Utiliser APP_DEBUG si showDetails n'est pas spécifié
+        if ($showDetails === null) {
+            $showDetails = defined('APP_DEBUG') ? APP_DEBUG : false;
+        }
 
         $variables = [
             'titre' => 'Erreur base de données',
@@ -381,7 +386,7 @@ class ErrorHandler
             'action' => $action
         ];
 
-        // Ajouter les détails techniques en développement (si showDetails = true)
+        // Ajouter les détails techniques en développement (si showDetails = true ou APP_DEBUG)
         if ($showDetails) {
             $variables['showDetails'] = $exception->getMessage() . "\n\nFichier: " . $exception->getFile() . "\nLigne: " . $exception->getLine();
         }
