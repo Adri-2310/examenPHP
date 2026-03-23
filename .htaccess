@@ -2,9 +2,7 @@
     RewriteEngine On
     RewriteBase /
 
-    # Exclure le dossier public (CSS, JS, uploads, etc. servis directement)
-    RewriteCond %{REQUEST_URI} ^/public/ [OR]
-    # Exclure les ressources statiques à la racine si besoin
+    # Exclure les ressources statiques (CSS, JS, uploads, images, assets)
     RewriteCond %{REQUEST_URI} ^/(css|js|images|uploads|assets)/
     RewriteRule ^ - [L]
 
@@ -13,8 +11,8 @@
     # Si ce n'est pas un dossier existant
     RewriteCond %{REQUEST_FILENAME} !-d
 
-    # Route vers /public/index.php en passant l'URL
-    RewriteRule ^(.*)$ /public/index.php?url=$1 [QSA,L]
+    # Route vers /index.php en passant l'URL
+    RewriteRule ^(.*)$ /index.php?url=$1 [QSA,L]
 </IfModule>
 
 # Protection du fichier .env contre l'accès direct

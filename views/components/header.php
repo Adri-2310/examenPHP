@@ -31,7 +31,7 @@
     <!-- Toastify-js pour les notifications -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <!-- CSS personnalisé (inclut les thèmes light/dark et styles globaux) -->
-    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <!-- Header avec navigation -->

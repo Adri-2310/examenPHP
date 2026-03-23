@@ -77,7 +77,7 @@ class RecipesController extends Controller
         }
 
         // Chemin absolu vers le dossier d'upload
-        $dossierUpload = dirname(__DIR__, 2) . '/public/uploads/';
+        $dossierUpload = dirname(__DIR__, 2) . '/uploads/';
 
         // Création du dossier avec permissions sécurisées (755 au lieu de 777)
         if (!is_dir($dossierUpload)) {
@@ -99,7 +99,7 @@ class RecipesController extends Controller
         }
 
         // Retour du chemin relatif (pour l'affichage HTML)
-        return '/public/uploads/' . $nomUnique;
+        return '/uploads/' . $nomUnique;
     }
 
     /**
@@ -274,7 +274,7 @@ class RecipesController extends Controller
 
                         // Si upload d'image a réussi, le nettoyer
                         if ($image_url) {
-                            $cheminFichier = dirname(__DIR__, 2) . '/public' . $image_url;
+                            $cheminFichier = dirname(__DIR__, 2) . $image_url;
                             @unlink($cheminFichier);
                         }
 
@@ -456,7 +456,7 @@ class RecipesController extends Controller
                                 if ($image_url !== null) {
                                     // Une nouvelle image a été uploadée, supprimer l'ancienne
                                     if (!empty($recette->image_url)) {
-                                        $cheminAncienne = dirname(__DIR__, 2) . '/public' . $recette->image_url;
+                                        $cheminAncienne = dirname(__DIR__, 2) . $recette->image_url;
                                         if (file_exists($cheminAncienne)) {
                                             @unlink($cheminAncienne);
                                         }
@@ -492,7 +492,7 @@ class RecipesController extends Controller
 
                                 // Si upload d'image a réussi, le nettoyer
                                 if ($image_url) {
-                                    $cheminFichier = dirname(__DIR__, 2) . '/public' . $image_url;
+                                    $cheminFichier = dirname(__DIR__, 2) . $image_url;
                                     @unlink($cheminFichier);
                                 }
 
@@ -589,8 +589,8 @@ class RecipesController extends Controller
             // ===== ÉTAPE A : SUPPRESSION DU FICHIER IMAGE =====
             if (!empty($recette->image_url)) {
                 // Reconstruction du chemin absolu vers le fichier
-                // Exemple : /public/uploads/abc123.jpg
-                $cheminFichier = dirname(__DIR__, 2) . '/public' . $recette->image_url;
+                // Exemple : /uploads/abc123.jpg
+                $cheminFichier = dirname(__DIR__, 2) . $recette->image_url;
 
                 // Suppression physique du fichier si existant
                 if (file_exists($cheminFichier)) {

@@ -25,5 +25,5 @@ return [
 
     // Uploads
     'UPLOAD_MAX_SIZE'   => 2 * 1024 * 1024,    // 2 MB en prod
-    'UPLOAD_PATH'       => ROOT . '/public/uploads/',
+    'UPLOAD_PATH'       => ROOT . '/uploads/',
 ];

@@ -17,12 +17,12 @@
     <!-- Scripts JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Classes JavaScript personnalisées -->
-    <script src="/public/js/classes/ThemeToggle.js"></script>
+    <script src="/js/classes/ThemeToggle.js"></script>
     <!-- Point d'entrée JavaScript principal -->
-    <script src="/public/js/main.js"></script>
+    <script src="/js/main.js"></script>
     <!-- Bibliothèque Toastify-js -->
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script src="/public/js/notification.js"></script>
+    <script src="/js/notification.js"></script>
 
     <!-- Affichage des notifications Toast -->
     <script>
