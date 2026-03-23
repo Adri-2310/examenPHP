@@ -13,8 +13,8 @@
 |---------|--------|---------|
 | **Dossier complet du projet** | ✅ OK | 45 fichiers, structure MVC |
 | **Base de données `.sql`** | ✅ OK | `database/examenPhp.sql` présente |
-| **Fichier `nom-prenom.zip`** | ⏳ À créer | Format: `nom-prenom.zip` |
-| **Fichier `liens.txt` (facultatif)** | ⚠️ Non présent | Optionnel - ajouter si déploiement en ligne |
+| **Fichier `nom-prenom.zip`** | ✅ À créer | Format: `nom-prenom.zip` |
+| **Fichier `liens.txt` (facultatif)** | ✅ Non présent | Optionnel - ajouter si déploiement en ligne |
 
 ### 📦 À faire avant la soumission
 
