@@ -99,7 +99,7 @@ class RecipesController extends Controller
         }
 
         // Retour du chemin relatif (pour l'affichage HTML)
-        return '/uploads/' . $nomUnique;
+        return '/public/uploads/' . $nomUnique;
     }
 
     /**

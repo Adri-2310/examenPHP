@@ -56,7 +56,8 @@ if (APP_DEBUG) {
 header("X-Frame-Options: DENY");
 header("X-Content-Type-Options: nosniff");
 header("X-XSS-Protection: 1; mode=block");
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https:;");
+// CSP moins restrictif pour production tout en gardant la sécurité
+header("Content-Security-Policy: default-src 'self' https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; connect-src 'self' https:;");
 // HSTS seulement en production (HTTPS requis)
 if (!APP_DEBUG) {
     header("Strict-Transport-Security: max-age=31536000; includeSubDomains");

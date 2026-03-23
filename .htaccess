@@ -1,12 +1,39 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Exclure le dossier public (CSS, JS, uploads, etc. servis directement)
+    RewriteCond %{REQUEST_URI} ^/public/ [OR]
+    # Exclure les ressources statiques à la racine si besoin
+    RewriteCond %{REQUEST_URI} ^/(css|js|images|uploads|assets)/
+    RewriteRule ^ - [L]
+
+    # Si ce n'est pas un fichier existant
+    RewriteCond %{REQUEST_FILENAME} !-f
+    # Si ce n'est pas un dossier existant
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Route vers /public/index.php en passant l'URL
+    RewriteRule ^(.*)$ /public/index.php?url=$1 [QSA,L]
+</IfModule>
+
 # Protection du fichier .env contre l'accès direct
 <Files ".env">
-    Require all denied
+    Order deny,allow
+    Deny from all
 </Files>
 
 # Protection des fichiers sensibles
 <FilesMatch "\.(env|ini|log|sql)$">
-    Require all denied
+    Order deny,allow
+    Deny from all
 </FilesMatch>
 
 # Désactiver l'affichage des listings de répertoires
 Options -Indexes
+
+# Ajouter les bons MIME types
+<IfModule mod_mime.c>
+    AddType text/css .css
+    AddType application/javascript .js
+</IfModule>
