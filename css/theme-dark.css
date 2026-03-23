@@ -163,7 +163,6 @@ body[data-theme="dark"] .card {
 
 body[data-theme="dark"] .card:hover {
     box-shadow: var(--shadow-lg);
-    transform: translateY(-6px);
 }
 
 body[data-theme="dark"] .card-img-top {

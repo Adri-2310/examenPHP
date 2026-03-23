@@ -544,7 +544,6 @@ img {
 }
 
 .card:hover {
-    transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
 }
 

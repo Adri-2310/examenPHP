@@ -57,6 +57,7 @@
                             <a class="nav-link" href="/favorites">❤️ Mes Favoris</a>
                             <a class="nav-link" href="/api">🌍 Inspiration</a>
                             <a class="nav-link" href="/contact/contact">📧 Contact</a>
+                            <a class="nav-link" href="/users/profile">👤 <?= htmlspecialchars($_SESSION['user']['nom'] ?? 'Profil') ?></a>
                             <a class="nav-link" href="/users/logout">Déconnexion</a>
                         <?php else: ?>
                             <!-- Navigation pour visiteurs non connectés -->
