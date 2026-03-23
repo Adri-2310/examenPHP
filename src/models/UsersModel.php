@@ -124,4 +124,82 @@ class UsersModel extends Model
             throw $e;
         }
     }
+
+    /**
+     * Récupère un utilisateur par son identifiant
+     *
+     * @param int $id Identifiant de l'utilisateur
+     * @return object|false L'utilisateur trouvé ou false si inexistant
+     *
+     * @security Requête préparée contre injection SQL
+     */
+    public function findById(int $id)
+    {
+        try {
+            return $this->requete("SELECT * FROM {$this->table} WHERE id = ?", [$id])->fetch();
+        } catch (\PDOException $e) {
+            ErrorHandler::logDatabaseError($e, 'UsersModel::findById()', [
+                'model' => 'UsersModel',
+                'method' => 'findById',
+                'id' => $id
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Met à jour le profil d'un utilisateur (email et nom)
+     *
+     * @param int    $id    Identifiant de l'utilisateur à modifier
+     * @param string $email Nouvel email
+     * @param string $nom   Nouveau nom
+     * @return \PDOStatement Résultat de la mise à jour
+     *
+     * @security Requête préparée contre injection SQL
+     */
+    public function updateProfile(int $id, string $email, string $nom)
+    {
+        try {
+            return $this->requete(
+                "UPDATE {$this->table} SET email = ?, nom = ? WHERE id = ?",
+                [$email, $nom, $id]
+            );
+        } catch (\PDOException $e) {
+            ErrorHandler::logDatabaseError($e, 'UsersModel::updateProfile()', [
+                'model' => 'UsersModel',
+                'method' => 'updateProfile',
+                'id' => $id
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Met à jour le mot de passe d'un utilisateur
+     *
+     * Le mot de passe doit être hashé AVANT l'appel à cette méthode.
+     *
+     * @param int    $id             Identifiant de l'utilisateur
+     * @param string $hashedPassword Nouveau mot de passe déjà hashé
+     * @return \PDOStatement Résultat de la mise à jour
+     *
+     * @security Le mot de passe doit être hashé avec password_hash() AVANT l'appel
+     * @security Requête préparée contre injection SQL
+     */
+    public function updatePassword(int $id, string $hashedPassword)
+    {
+        try {
+            return $this->requete(
+                "UPDATE {$this->table} SET password = ? WHERE id = ?",
+                [$hashedPassword, $id]
+            );
+        } catch (\PDOException $e) {
+            ErrorHandler::logDatabaseError($e, 'UsersModel::updatePassword()', [
+                'model' => 'UsersModel',
+                'method' => 'updatePassword',
+                'id' => $id
+            ]);
+            throw $e;
+        }
+    }
 }

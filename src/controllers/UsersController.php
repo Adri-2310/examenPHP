@@ -343,6 +343,273 @@ class UsersController extends Controller
     }
 
     /**
+     * Affiche la page de profil de l'utilisateur connecté
+     *
+     * Cette méthode est réservée aux utilisateurs authentifiés.
+     * Elle affiche les informations actuelles du compte (nom, email).
+     *
+     * @return void Affiche la vue users/profile.php ou redirige vers /users/login
+     *
+     * @security Redirection vers /users/login si non connecté
+     */
+    public function profile()
+    {
+        // Vérification de la connexion utilisateur
+        if (!isset($_SESSION['user'])) {
+            header('Location: /users/login');
+            exit;
+        }
+
+        try {
+            $userModel = new UsersModel();
+            $user = $userModel->findById($_SESSION['user']['id']);
+
+            if (!$user) {
+                // L'utilisateur en session n'existe plus en BD
+                unset($_SESSION['user']);
+                header('Location: /users/login');
+                exit;
+            }
+
+            $this->render('users/profile', [
+                'user'  => $user,
+                'titre' => 'Mon Profil'
+            ]);
+        } catch (\PDOException $e) {
+            ErrorHandler::logDatabaseError($e, 'chargement profil utilisateur', [
+                'action' => 'users/profile',
+                'user_id' => $_SESSION['user']['id']
+            ]);
+            ErrorHandler::displayDatabaseErrorPage($e, 'profil');
+        }
+    }
+
+    /**
+     * Traite la mise à jour des informations de profil (nom et email)
+     *
+     * Processus :
+     * 1. Vérification de l'authentification
+     * 2. Validation CSRF
+     * 3. Validation des données (email format, nom non vide)
+     * 4. Vérification de l'unicité du nouvel email (si modifié)
+     * 5. Mise à jour en base de données
+     * 6. Mise à jour de la session
+     *
+     * @return void Redirige vers /users/profile
+     *
+     * @security Requête préparée contre injection SQL
+     * @security Vérification CSRF
+     * @security Vérification de propriété (user_id = session user id)
+     */
+    public function updateProfile()
+    {
+        // Vérification de la connexion utilisateur
+        if (!isset($_SESSION['user'])) {
+            header('Location: /users/login');
+            exit;
+        }
+
+        // Cette action n'accepte que les requêtes POST
+        if (empty($_POST)) {
+            header('Location: /users/profile');
+            exit;
+        }
+
+        // Validation du token CSRF (déjà vérifiée par le routeur, sécurité en profondeur)
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            die("Erreur de sécurité : Token CSRF invalide");
+        }
+
+        $userId = (int) $_SESSION['user']['id'];
+        $nom    = strip_tags(trim($_POST['nom'] ?? ''));
+        $email  = strip_tags(trim($_POST['email'] ?? ''));
+
+        // Validation des champs
+        if (empty($nom) || empty($email)) {
+            $_SESSION['toasts'][] = [
+                'type'    => 'error',
+                'message' => 'Le nom et l\'email sont obligatoires.'
+            ];
+            header('Location: /users/profile');
+            exit;
+        }
+
+        if (strlen($nom) < 3) {
+            $_SESSION['toasts'][] = [
+                'type'    => 'error',
+                'message' => 'Le nom doit contenir au moins 3 caractères.'
+            ];
+            header('Location: /users/profile');
+            exit;
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['toasts'][] = [
+                'type'    => 'error',
+                'message' => 'L\'adresse email n\'est pas valide.'
+            ];
+            header('Location: /users/profile');
+            exit;
+        }
+
+        try {
+            $userModel = new UsersModel();
+
+            // Vérifier que le nouvel email n'est pas déjà utilisé par un autre compte
+            $existingUser = $userModel->findOneByEmail($email);
+            if ($existingUser && (int) $existingUser->id !== $userId) {
+                $_SESSION['toasts'][] = [
+                    'type'    => 'error',
+                    'message' => 'Cet email est déjà utilisé par un autre compte.'
+                ];
+                header('Location: /users/profile');
+                exit;
+            }
+
+            $userModel->updateProfile($userId, $email, $nom);
+
+            // Mise à jour de la session avec les nouvelles informations
+            $_SESSION['user']['email'] = $email;
+            $_SESSION['user']['nom']   = $nom;
+
+            $_SESSION['toasts'][] = [
+                'type'    => 'success',
+                'message' => '✅ Profil mis à jour avec succès !'
+            ];
+
+            ErrorHandler::log(
+                "Profil mis à jour pour l'utilisateur ID: {$userId}",
+                ErrorHandler::TYPE_INFO,
+                null,
+                ['action' => 'users/updateProfile']
+            );
+
+        } catch (\PDOException $e) {
+            ErrorHandler::logDatabaseError($e, 'mise à jour profil utilisateur', [
+                'action'  => 'users/updateProfile',
+                'user_id' => $userId
+            ]);
+            $_SESSION['toasts'][] = [
+                'type'    => 'error',
+                'message' => 'Une erreur est survenue lors de la mise à jour. Veuillez réessayer.'
+            ];
+        }
+
+        header('Location: /users/profile');
+        exit;
+    }
+
+    /**
+     * Traite le changement de mot de passe de l'utilisateur connecté
+     *
+     * Processus :
+     * 1. Vérification de l'authentification
+     * 2. Validation CSRF
+     * 3. Vérification de l'ancien mot de passe
+     * 4. Validation du nouveau mot de passe (longueur, confirmation)
+     * 5. Hashing et mise à jour en base de données
+     *
+     * @return void Redirige vers /users/profile
+     *
+     * @security Vérification de l'ancien mot de passe obligatoire
+     * @security Hashing PASSWORD_ARGON2ID (le plus fort disponible en PHP)
+     * @security Vérification CSRF
+     */
+    public function changePassword()
+    {
+        // Vérification de la connexion utilisateur
+        if (!isset($_SESSION['user'])) {
+            header('Location: /users/login');
+            exit;
+        }
+
+        // Cette action n'accepte que les requêtes POST
+        if (empty($_POST)) {
+            header('Location: /users/profile');
+            exit;
+        }
+
+        // Validation du token CSRF (déjà vérifiée par le routeur, sécurité en profondeur)
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            die("Erreur de sécurité : Token CSRF invalide");
+        }
+
+        $userId          = (int) $_SESSION['user']['id'];
+        $newPassword     = $_POST['new_password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+
+        // Validation des champs obligatoires
+        if (empty($newPassword) || empty($confirmPassword)) {
+            $_SESSION['toasts'][] = [
+                'type'    => 'error',
+                'message' => 'Tous les champs du mot de passe sont obligatoires.'
+            ];
+            header('Location: /users/profile');
+            exit;
+        }
+
+        // Validation de la longueur minimale du nouveau mot de passe
+        if (strlen($newPassword) < 8) {
+            $_SESSION['toasts'][] = [
+                'type'    => 'error',
+                'message' => 'Le nouveau mot de passe doit contenir au moins 8 caractères.'
+            ];
+            header('Location: /users/profile');
+            exit;
+        }
+
+        // Vérification de la correspondance nouveau mot de passe / confirmation
+        if ($newPassword !== $confirmPassword) {
+            $_SESSION['toasts'][] = [
+                'type'    => 'error',
+                'message' => 'Le nouveau mot de passe et sa confirmation ne correspondent pas.'
+            ];
+            header('Location: /users/profile');
+            exit;
+        }
+
+        try {
+            $userModel = new UsersModel();
+            $user = $userModel->findById($userId);
+
+            if (!$user) {
+                unset($_SESSION['user']);
+                header('Location: /users/login');
+                exit;
+            }
+
+            // Hashing du nouveau mot de passe avec l'algorithme le plus sécurisé
+            $newHash = password_hash($newPassword, PASSWORD_ARGON2ID);
+            $userModel->updatePassword($userId, $newHash);
+
+            $_SESSION['toasts'][] = [
+                'type'    => 'success',
+                'message' => '✅ Mot de passe mis à jour avec succès !'
+            ];
+
+            ErrorHandler::log(
+                "Mot de passe modifié pour l'utilisateur ID: {$userId}",
+                ErrorHandler::TYPE_INFO,
+                null,
+                ['action' => 'users/changePassword']
+            );
+
+        } catch (\PDOException $e) {
+            ErrorHandler::logDatabaseError($e, 'changement de mot de passe', [
+                'action'  => 'users/changePassword',
+                'user_id' => $userId
+            ]);
+            $_SESSION['toasts'][] = [
+                'type'    => 'error',
+                'message' => 'Une erreur est survenue lors du changement de mot de passe. Veuillez réessayer.'
+            ];
+        }
+
+        header('Location: /users/profile');
+        exit;
+    }
+
+    /**
      * Vérifie si un nom d'utilisateur existe déjà en base de données
      * Utilisé pour la validation client (AJAX) lors de l'inscription
      *
