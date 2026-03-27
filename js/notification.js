@@ -45,6 +45,21 @@ const Notifications = {
             background: "linear-gradient(to right, #00d2ff, #3a7bd5)",
             stopOnFocus: true
         }).showToast();
+    },
+
+    /**
+     * Affiche une notification d'avertissement
+     * @param {string} message - Le message à afficher
+     */
+    warning(message) {
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            background: "linear-gradient(to right, #ffa500, #ff6b6b)",
+            stopOnFocus: true
+        }).showToast();
     }
 };
 

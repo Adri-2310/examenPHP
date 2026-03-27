@@ -13,7 +13,7 @@ class ThemeToggle {
      * Initialise le système de thème
      */
     constructor() {
-        this.theme = localStorage.getItem('theme') || 'light';
+        this.theme = window.StorageManager.getItem('theme') || 'light';
         this.init();
     }
 
@@ -35,7 +35,7 @@ class ThemeToggle {
     toggle() {
         this.theme = this.theme === 'light' ? 'dark' : 'light';
         this.applyTheme();
-        localStorage.setItem('theme', this.theme);
+        window.StorageManager.setItem('theme', this.theme);
     }
 
     /**
