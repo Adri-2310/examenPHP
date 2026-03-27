@@ -243,6 +243,16 @@ class ApiController extends Controller
         header('Content-Type: application/json');
 
         try {
+            // OPTIMISATION: Cache en session (30 minutes)
+            $cacheKey = 'api_categories_cache';
+            $cacheMaxAge = 1800;  // 30 minutes
+
+            if (isset($_SESSION[$cacheKey]) &&
+                (time() - $_SESSION[$cacheKey]['timestamp']) < $cacheMaxAge) {
+                echo json_encode($_SESSION[$cacheKey]['data']);
+                return;
+            }
+
             $context = stream_context_create([
                 'http' => ['timeout' => 5]
             ]);
@@ -263,6 +273,12 @@ class ApiController extends Controller
                 throw new \Exception('JSON invalide');
             }
 
+            // Sauvegarder en cache session
+            $_SESSION[$cacheKey] = [
+                'data' => $data,
+                'timestamp' => time()
+            ];
+
             echo json_encode($data);
         } catch (\Exception $e) {
             http_response_code(500);
@@ -279,6 +295,16 @@ class ApiController extends Controller
         header('Content-Type: application/json');
 
         try {
+            // OPTIMISATION: Cache en session (30 minutes)
+            $cacheKey = 'api_areas_cache';
+            $cacheMaxAge = 1800;  // 30 minutes
+
+            if (isset($_SESSION[$cacheKey]) &&
+                (time() - $_SESSION[$cacheKey]['timestamp']) < $cacheMaxAge) {
+                echo json_encode($_SESSION[$cacheKey]['data']);
+                return;
+            }
+
             $context = stream_context_create([
                 'http' => ['timeout' => 5]
             ]);
@@ -298,6 +324,12 @@ class ApiController extends Controller
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new \Exception('JSON invalide');
             }
+
+            // Sauvegarder en cache session
+            $_SESSION[$cacheKey] = [
+                'data' => $data,
+                'timestamp' => time()
+            ];
 
             echo json_encode($data);
         } catch (\Exception $e) {
@@ -321,6 +353,16 @@ class ApiController extends Controller
         }
 
         try {
+            // OPTIMISATION: Cache par catégorie (30 minutes)
+            $cacheKey = 'api_category_' . md5($category);
+            $cacheMaxAge = 1800;  // 30 minutes
+
+            if (isset($_SESSION[$cacheKey]) &&
+                (time() - $_SESSION[$cacheKey]['timestamp']) < $cacheMaxAge) {
+                echo json_encode($_SESSION[$cacheKey]['data']);
+                return;
+            }
+
             $context = stream_context_create([
                 'http' => ['timeout' => 5]
             ]);
@@ -337,6 +379,12 @@ class ApiController extends Controller
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new \Exception('JSON invalide');
             }
+
+            // Sauvegarder en cache session
+            $_SESSION[$cacheKey] = [
+                'data' => $data,
+                'timestamp' => time()
+            ];
 
             echo json_encode($data);
         } catch (\Exception $e) {
@@ -360,6 +408,16 @@ class ApiController extends Controller
         }
 
         try {
+            // OPTIMISATION: Cache par région (30 minutes)
+            $cacheKey = 'api_area_' . md5($area);
+            $cacheMaxAge = 1800;  // 30 minutes
+
+            if (isset($_SESSION[$cacheKey]) &&
+                (time() - $_SESSION[$cacheKey]['timestamp']) < $cacheMaxAge) {
+                echo json_encode($_SESSION[$cacheKey]['data']);
+                return;
+            }
+
             $context = stream_context_create([
                 'http' => ['timeout' => 5]
             ]);
@@ -376,6 +434,12 @@ class ApiController extends Controller
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new \Exception('JSON invalide');
             }
+
+            // Sauvegarder en cache session
+            $_SESSION[$cacheKey] = [
+                'data' => $data,
+                'timestamp' => time()
+            ];
 
             echo json_encode($data);
         } catch (\Exception $e) {

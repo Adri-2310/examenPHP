@@ -26,10 +26,10 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🍽️</text></svg>">
 
     <!-- Feuilles de style -->
-    <!-- Bootstrap 5.3.0 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Toastify-js pour les notifications -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <!-- Bootstrap 5.3.0 (local) -->
+    <link href="/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <!-- Toastify-js pour les notifications (local) -->
+    <link rel="stylesheet" href="/vendor/toastify/toastify.min.css">
     <!-- CSS personnalisé (inclut les thèmes light/dark et styles globaux) -->
     <link rel="stylesheet" href="/css/style.css">
 </head>
