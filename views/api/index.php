@@ -178,22 +178,29 @@
 
         col.innerHTML = `
             <div class="card h-100 shadow-sm">
-                <img src="${meal.strMealThumb}" class="card-img-top" alt="${meal.strMeal}" loading="lazy">
+                <a href="/api/lireRecette/${escapeHtml(meal.idMeal)}" style="text-decoration: none; color: inherit;">
+                    <img src="${meal.strMealThumb}" class="card-img-top" alt="${meal.strMeal}" loading="lazy" style="cursor: pointer;">
+                </a>
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">${escapeHtml(meal.strMeal)}</h5>
                     <span class="badge bg-info mb-2 align-self-start">${escapeHtml(meal.strCategory)}</span>
                     <p class="badge bg-warning mb-2 align-self-start">${escapeHtml(meal.strArea)}</p>
                     <p class="card-text small flex-grow-1">${escapeHtml(meal.strInstructions ? meal.strInstructions.substring(0, 100) : 'Pas de description')}...</p>
 
-                    <form action="/favorites/add" method="POST" class="mt-auto">
-                        <input type="hidden" name="csrf_token" value="${csrfToken}">
-                        <input type="hidden" name="id_api" value="${escapeHtml(meal.idMeal)}">
-                        <input type="hidden" name="titre" value="${escapeHtml(meal.strMeal)}">
-                        <input type="hidden" name="image_url" value="${escapeHtml(meal.strMealThumb)}">
-                        <button type="submit" class="btn btn-danger w-100">
-                            ❤️ Ajouter à mes favoris
-                        </button>
-                    </form>
+                    <div class="d-flex gap-2 mt-auto">
+                        <a href="/api/lireRecette/${escapeHtml(meal.idMeal)}" class="btn btn-info flex-grow-1">
+                            👁️ Voir la recette
+                        </a>
+                        <form action="/favorites/add" method="POST" class="flex-grow-1">
+                            <input type="hidden" name="csrf_token" value="${csrfToken}">
+                            <input type="hidden" name="id_api" value="${escapeHtml(meal.idMeal)}">
+                            <input type="hidden" name="titre" value="${escapeHtml(meal.strMeal)}">
+                            <input type="hidden" name="image_url" value="${escapeHtml(meal.strMealThumb)}">
+                            <button type="submit" class="btn btn-danger w-100">
+                                ❤️ Favoris
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         `;

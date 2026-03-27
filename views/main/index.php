@@ -59,14 +59,15 @@
             <?php foreach($favorisAffichage as $fav): ?>
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
-                        <img src="<?= $fav->image_url ?>" class="card-img-top" alt="<?= htmlspecialchars($fav->titre) ?>" loading="lazy">
+                        <a href="/api/lireRecette/<?= $fav->id_api ?>" style="text-decoration: none; color: inherit;">
+                            <img src="<?= $fav->image_url ?>" class="card-img-top" alt="<?= htmlspecialchars($fav->titre) ?>" loading="lazy" style="cursor: pointer;">
+                        </a>
 
                         <div class="card-body">
                             <h5 class="card-title"><?= htmlspecialchars($fav->titre) ?></h5>
 
-                            <div class="d-flex justify-content-between mt-3">
-                                <a href="/favorites" class="btn btn-sm btn-outline-secondary">Gérer</a>
-                                <a href="/api/lireRecette/<?= $fav->id_api ?>" class="btn btn-sm btn-link">Voir la recette</a>
+                            <div class="mt-3">
+                                <a href="/favorites" class="btn btn-sm btn-outline-secondary w-100">Gérer mes favoris</a>
                             </div>
                         </div>
                     </div>
@@ -82,16 +83,15 @@
         <?php foreach($randomRecipes as $recette): ?>
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">
-                    <img src="<?= $recette['strMealThumb'] ?>" class="card-img-top" alt="<?= $recette['strMeal'] ?>" loading="lazy">
-                    
+                    <a href="/api/lireRecette/<?= $recette['idMeal'] ?>" style="text-decoration: none; color: inherit;">
+                        <img src="<?= $recette['strMealThumb'] ?>" class="card-img-top" alt="<?= $recette['strMeal'] ?>" loading="lazy" style="cursor: pointer;">
+                    </a>
+
                     <div class="card-body">
                         <h5 class="card-title"><?= $recette['strMeal'] ?></h5>
                         <p class="badge bg-info mb-2"><?= $recette['strCategory'] ?></p>
                         <p class="badge bg-warning mb-2"><?= $recette['strArea'] ?></p>
-                        <p class="card-text small text-muted">
-                            Origine
-                        </p>
-                        
+
                         <!-- Bouton favori AJAX (seulement si connecté) -->
                         <?php if(isset($_SESSION['user'])): ?>
                             <button type="button" class="btn-toggle-fav btn btn-success w-100 mt-3"

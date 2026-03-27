@@ -46,27 +46,26 @@
             <?php foreach($mesCreations as $recette): ?>
                 <div class="col-md-4 mb-4 recipe-card">
                     <div class="card h-100 shadow-sm">
-                        <?php if(!empty($recette->image_url)): ?>
-                            <img src="<?= $recette->image_url ?>" class="card-img-top" alt="Photo recette" loading="lazy">
-                        <?php else: ?>
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="color: #999;">
-                                📷 Pas d'image
-                            </div>
-                        <?php endif; ?>
+                        <a href="/recipes/lire/<?= $recette->id ?>" style="text-decoration: none; color: inherit;">
+                            <?php if(!empty($recette->image_url)): ?>
+                                <img src="<?= $recette->image_url ?>" class="card-img-top" alt="Photo recette" loading="lazy" style="cursor: pointer;">
+                            <?php else: ?>
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="color: #999; cursor: pointer;">
+                                    📷 Pas d'image
+                                </div>
+                            <?php endif; ?>
+                        </a>
                         <div class="card-body">
                             <h5 class="card-title recipe-title"><?= htmlspecialchars($recette->title) ?></h5>
                             <p class="card-text text-muted small"><?= substr(htmlspecialchars($recette->description), 0, 80) ?>...</p>
                         </div>
-                        <div class="card-footer bg-transparent d-flex justify-content-between">
-                            <a href="/recipes/lire/<?= $recette->id ?>" class="btn btn-sm btn-info text-white">Voir</a>
-                            <div>
-                                <a href="/recipes/edit/<?= $recette->id ?>" class="btn btn-sm btn-warning">✏️</a>
+                        <div class="card-footer bg-transparent d-flex justify-content-between gap-2">
+                            <a href="/recipes/edit/<?= $recette->id ?>" class="btn btn-sm btn-warning flex-grow-1">✏️ Modifier</a>
 
-                                <form method="POST" action="/recipes/delete/<?= $recette->id ?>" style="display:inline;">
-                                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr ?');">🗑️</button>
-                                </form>
-                            </div>
+                            <form method="POST" action="/recipes/delete/<?= $recette->id ?>" style="display:inline; flex-grow: 1;">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                <button type="submit" class="btn btn-sm btn-danger w-100" onclick="return confirm('Êtes-vous sûr ?');">🗑️ Supprimer</button>
+                            </form>
                         </div>
                     </div>
                 </div>

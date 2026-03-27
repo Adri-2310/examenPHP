@@ -34,14 +34,6 @@
     <h1>Ajouter une nouvelle recette 🍳</h1>
     <a href="/recipes" class="btn btn-outline-secondary mb-3">⬅ Retour</a>
 
-    <!-- Affichage des erreurs de validation -->
-    <?php if(isset($erreur)): ?>
-        <div class="alert alert-danger"><?= $erreur ?></div>
-        <script>
-            Notifications.error('<?= addslashes($erreur) ?>');
-        </script>
-    <?php endif; ?>
-
     <div class="card shadow-sm p-4 mt-2">
         <!-- Formulaire avec support d'upload de fichiers -->
         <form method="post" enctype="multipart/form-data">
@@ -85,11 +77,12 @@
     </div>
 </div>
 
-<!-- Script pour l'aperçu d'image -->
+<!-- Script pour l'aperçu d'image et validation -->
 <script>
     const imageInput = document.getElementById('image');
     const imagePreview = document.getElementById('image-preview');
     const imagePreviewContainer = document.getElementById('image-preview-container');
+    const form = document.querySelector('form');
 
     /**
      * Affiche un aperçu de l'image sélectionnée
@@ -113,5 +106,44 @@
             imagePreviewContainer.style.display = 'none';
             imagePreview.src = '';
         }
+    });
+
+    /**
+     * Validation du formulaire avant soumission
+     * Affiche un toast si les champs obligatoires ne sont pas remplis
+     */
+    form.addEventListener('submit', function(e) {
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const instructions = document.getElementById('instructions').value.trim();
+        const ingredientsWrapper = document.getElementById('ingredients-wrapper');
+        const ingredientInputs = ingredientsWrapper.querySelectorAll('input[name="ingredients[name][]"]');
+
+        // Vérifier les champs obligatoires
+        if (!title) {
+            e.preventDefault();
+            Notifications.error('❌ Veuillez saisir un titre pour la recette.');
+            return;
+        }
+
+        if (!description) {
+            e.preventDefault();
+            Notifications.error('❌ Veuillez saisir une description.');
+            return;
+        }
+
+        if (!instructions) {
+            e.preventDefault();
+            Notifications.error('❌ Veuillez saisir les étapes de préparation.');
+            return;
+        }
+
+        if (ingredientInputs.length === 0) {
+            e.preventDefault();
+            Notifications.error('❌ Veuillez ajouter au moins un ingrédient.');
+            return;
+        }
+
+        // Si tout est valide, laisser le formulaire se soumettre
     });
 </script>

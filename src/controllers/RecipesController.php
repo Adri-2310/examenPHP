@@ -282,13 +282,15 @@ class RecipesController extends Controller
                     }
                 }
             } else {
-                $erreur = "Veuillez remplir tous les champs obligatoires.";
+                $_SESSION['toasts'][] = [
+                    'type' => 'error',
+                    'message' => '❌ Veuillez remplir tous les champs obligatoires.'
+                ];
             }
         }
 
         // Affichage du formulaire de création
         $this->render('recipes/ajouter', [
-            'erreur' => $erreur ?? null,
             'titre' => 'Créer une recette'
         ]);
     }
