@@ -72,18 +72,18 @@
             <?php foreach($favoris as $fav): ?>
                 <div class="col-md-4 mb-4 favorite-card" data-id-api="<?= $fav->id_api ?>" data-fav-id="<?= $fav->id ?>" style="display: none;">
                     <div class="card h-100 shadow-sm">
-                        <img src="<?= $fav->image_url ?>" class="card-img-top" alt="<?= htmlspecialchars($fav->titre) ?>" loading="lazy">
+                        <a href="/api/lireRecette/<?= $fav->id_api ?>" style="text-decoration: none; color: inherit;">
+                            <img src="<?= $fav->image_url ?>" class="card-img-top" alt="<?= htmlspecialchars($fav->titre) ?>" loading="lazy" style="cursor: pointer;">
+                        </a>
 
                         <div class="card-body">
                             <h5 class="card-title"><?= htmlspecialchars($fav->titre) ?></h5>
                             <div class="fav-details"></div>
                         </div>
 
-                        <div class="card-footer bg-transparent d-flex justify-content-between">
-                            <a href="/api/lireRecette/<?= $fav->id_api ?>" class="btn btn-sm btn-info text-white">Voir la recette</a>
-
+                        <div class="card-footer bg-transparent">
                             <!-- Bouton suppression AJAX -->
-                            <button type="button" class="btn-delete-fav btn btn-sm btn-danger"
+                            <button type="button" class="btn-delete-fav btn btn-sm btn-danger w-100"
                                     data-id-api="<?= $fav->id_api ?>"
                                     data-fav-id="<?= $fav->id ?>"
                                     data-csrf="<?= $_SESSION['csrf_token'] ?>"

@@ -105,67 +105,6 @@
 
     </div>
 
-    <!-- MÉTADONNÉES ET LIENS ADDITIONNELS -->
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="row">
-                        <!-- COLONNE GAUCHE: INFOS -->
-                        <div class="col-md-6">
-                            <h6 class="text-muted mb-2">📌 Informations</h6>
-                            <p class="mb-2">
-                                <small class="text-muted">Catégorie:</small><br>
-                                <strong><?= $recette->category ?></strong>
-                            </p>
-                            <p class="mb-2">
-                                <small class="text-muted">Région/Pays:</small><br>
-                                <strong><?= $recette->area ?></strong>
-                            </p>
-                            <?php if (!empty($recette->tags)): ?>
-                                <p class="mb-0">
-                                    <small class="text-muted">Tags:</small><br>
-                                    <strong><?= htmlspecialchars($recette->tags) ?></strong>
-                                </p>
-                            <?php endif; ?>
-                        </div>
-
-                        <!-- COLONNE DROITE: LIENS EXTERNES -->
-                        <div class="col-md-6 text-md-end">
-                            <h6 class="text-muted mb-2">🔗 Liens</h6>
-                            <p class="mb-2">
-                                <a href="https://www.themealdb.com/meal/<?= $recette->id_api ?>"
-                                   target="_blank"
-                                   class="btn btn-sm btn-outline-info">
-                                   📖 Voir sur TheMealDB
-                                </a>
-                            </p>
-                            <?php if (!empty($recette->source_url)): ?>
-                                <p class="mb-0">
-                                    <a href="<?= htmlspecialchars($recette->source_url) ?>"
-                                       target="_blank"
-                                       class="btn btn-sm btn-outline-secondary">
-                                       🌐 Source de la recette
-                                    </a>
-                                </p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PIED DE PAGE -->
-    <div class="mt-5 pt-4 border-top text-center text-muted small">
-        <p class="mb-0">
-            📍 Recette importée depuis <a href="https://www.themealdb.com" target="_blank" class="text-decoration-none">TheMealDB</a>
-            le <?= date('d/m/Y à H:i', strtotime($recette->created_at ?? 'now')) ?>
-        </p>
-        <p class="mb-0">
-            ID Recette: <code><?= htmlspecialchars($recette->id_api) ?></code>
-        </p>
-    </div>
 
 </div>
 
