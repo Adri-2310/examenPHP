@@ -205,7 +205,12 @@ class FormValidator {
         const nom = input.value.trim();
 
         // Récupérer le token CSRF depuis le formulaire
-        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+        const csrfTokenInput = document.querySelector('input[name="csrf_token"]');
+        if (!csrfTokenInput) {
+            // Si pas de token CSRF, arrêter la vérification
+            return;
+        }
+        const csrfToken = csrfTokenInput.value;
 
         // Créer un FormData pour envoyer les données
         const formData = new FormData();

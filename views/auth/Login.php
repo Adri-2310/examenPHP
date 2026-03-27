@@ -36,14 +36,11 @@
                 </div>
                 <div class="card-body">
 
-                    <!-- Affichage des erreurs d'authentification -->
+                    <!-- Affichage des erreurs d'authentification via alerts visuels -->
                     <?php if(isset($erreur)): ?>
                         <div class="alert alert-danger">
                             <?= $erreur ?>
                         </div>
-                        <script>
-                            Notifications.error('<?= addslashes($erreur) ?>');
-                        </script>
                     <?php endif; ?>
 
                     <!-- Affichage de l'avertissement tentatives restantes -->
@@ -52,9 +49,6 @@
                             <strong>💡 Avertissement :</strong> <?= $avertissement ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
                         </div>
-                        <script>
-                            Notifications.info('<?= addslashes($avertissement) ?>');
-                        </script>
                     <?php endif; ?>
 
                     <form method="post" novalidate>
