@@ -37,7 +37,7 @@
                 <img src="<?= $recette->image_url ?>"
                      alt="<?= $recette->title ?>"
                      class="img-fluid rounded shadow"
-                     loading="lazy"
+                     loading="eager"
                      style="max-height: 450px; object-fit: cover; width: 100%;">
             <?php else: ?>
                 <div class="bg-light rounded p-5 text-center">
